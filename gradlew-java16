@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+java16_home="${WSC_JAVA16_HOME:-$HOME/.local/jdks/temurin-16}"
+
+if [[ ! -x "$java16_home/bin/java" ]]; then
+    echo "Java 16 not found at $java16_home" >&2
+    echo "Set WSC_JAVA16_HOME or install Temurin 16 under $HOME/.local/jdks/temurin-16" >&2
+    exit 1
+fi
+
+export JAVA_HOME="$java16_home"
+export PATH="$JAVA_HOME/bin:$PATH"
+
+exec "$script_dir/gradlew" "$@"

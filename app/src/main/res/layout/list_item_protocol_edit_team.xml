@@ -19,14 +19,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20sp"
+        android:layout_marginBottom="10sp"
         android:onClick="@{clickListener}">
 
         <TextView
             android:id="@+id/protocol_item_number"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:lineHeight="18sp"
+            android:paddingStart="2dp"
+            android:paddingEnd="4dp"
             android:text="@{editTeam.number}"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:minEms="2"
             android:maxEms="2"
@@ -34,13 +38,20 @@
             tools:text="13"
             android:textColor="@{editTeam.cap.equalsIgnoreCase(ConstantsKt.WHITE) ? @color/black : @color/white}"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/protocol_item_firstname"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/protocol_item_firstname"/>
 
         <EditText
             android:id="@+id/protocol_item_firstname"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:lineHeight="18sp"
+            android:minHeight="0dp"
+            android:layout_marginEnd="4dp"
+            android:paddingStart="6dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:text="@{editTeam.playerFirstName}"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -48,14 +59,21 @@
             android:inputType="text"
             android:autofillHints="Vorname"
             android:lines="1"
+            android:maxEms="8"
             android:textColor="@{editTeam.cap.equalsIgnoreCase(ConstantsKt.WHITE) ? @color/black : @color/white}"
             app:layout_constraintStart_toEndOf="@+id/protocol_item_number"
+            app:layout_constraintEnd_toStartOf="@+id/protocol_item_lastname"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/protocol_item_lastname"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:lineHeight="18sp"
+            android:minHeight="0dp"
+            android:layout_marginStart="4dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:text="@{editTeam.playerLastName}"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -63,8 +81,10 @@
             android:inputType="text"
             android:autofillHints="Nachname"
             android:lines="1"
+            android:maxEms="8"
             android:textColor="@{editTeam.cap.equalsIgnoreCase(ConstantsKt.WHITE) ? @color/black : @color/white}"
             app:layout_constraintStart_toEndOf="@id/protocol_item_firstname"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

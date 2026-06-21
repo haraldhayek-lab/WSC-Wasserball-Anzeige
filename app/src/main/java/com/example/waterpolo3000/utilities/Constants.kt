@@ -11,6 +11,8 @@ const val FUNCTION_TYPES_FILENAME   = "functionTypeValues.json"
 
 // default values
 var DEFAULT_NUMBER_OF_GAME_SECTION = 4
+var DEFAULT_OVERTIME_ENABLED      = false
+var DEFAULT_PSO_ENABLED           = false
 var DEFAULT_GAME_SECTION_LENGTH    = 480
 var DEFAULT_SHOTCLOCK_BIG_LENGTH   = 30
 var DEFAULT_SHOTCLOCK_SMALL_LENGTH = 20
@@ -18,6 +20,7 @@ var DEFAULT_PAUSE_LONG_LENGTH      = 180
 var DEFAULT_PAUSE_SHORT_LENGTH     = 120
 var DEFAULT_TIMEOUT_LENGTH         = 60
 var DEFAULT_MAX_TIMEOUT            = 2
+const val PLAYER_COUNT             = 14
 const val BLUE  = "blue"
 const val WHITE = "white"
 

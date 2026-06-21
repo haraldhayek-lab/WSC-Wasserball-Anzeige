@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "638348847196",
+    "firebase_url": "https://waterpolo-live-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "waterpolo-live",
+    "storage_bucket": "waterpolo-live.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:638348847196:android:ce8d4790b41c88ff4c5e99",
+        "android_client_info": {
+          "package_name": "com.example.waterpolo3000.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "638348847196-803m4gml38msfpgj0eb7eqoo0e6jr72d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.waterpolo3000.debug",
+            "certificate_hash": "354f5bbfc30930d996b6ca31117447f5aaf9a371"
+          }
+        },
+        {
+          "client_id": "638348847196-3fso5ere8l0e6trb4h1f9i92vn20uj1t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6g6HU_DcdDxNenHQjYe3uXgJfiqS-His"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "638348847196-3fso5ere8l0e6trb4h1f9i92vn20uj1t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

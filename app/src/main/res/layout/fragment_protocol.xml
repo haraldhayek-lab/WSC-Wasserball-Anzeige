@@ -65,6 +65,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_team_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.50" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.60" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_foul_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.78" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_goals_order_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.92" />
+
         <TextView
             android:id="@+id/teamWhiteName"
             android:layout_width="0dp"
@@ -74,6 +102,7 @@
             android:text="team white"
             android:textAlignment="center"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/teamBlueName"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -83,6 +112,7 @@
             android:maxEms="2"
             android:minEms="2"
             android:text="Nr."
+            android:textAlignment="center"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName" />
 
@@ -90,8 +120,9 @@
             android:id="@+id/teamWhitePlayerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="6"
-            android:minEms="6"
+            android:layout_marginStart="6dp"
+            android:maxEms="11"
+            android:minEms="11"
             android:text="Name"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteNr"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
@@ -100,9 +131,12 @@
             android:id="@+id/teamWhiteP1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P1"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamWhitePlayerName"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
@@ -110,9 +144,12 @@
             android:id="@+id/teamWhiteP2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P2"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP1"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
@@ -120,9 +157,12 @@
             android:id="@+id/teamWhiteP3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P3"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP2"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
@@ -130,8 +170,11 @@
             android:id="@+id/teamWhiteGoal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:layout_marginStart="6dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="T"
             android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP3"
@@ -142,12 +185,12 @@
             android:id="@+id/teamBlueName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20sp"
             android:maxEms="16"
             android:minEms="16"
             android:text="team blue"
             android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteName"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_team_end"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -157,6 +200,7 @@
             android:maxEms="2"
             android:minEms="2"
             android:text="Nr."
+            android:textAlignment="center"
             app:layout_constraintStart_toStartOf="@+id/teamBlueName"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName" />
 
@@ -164,8 +208,9 @@
             android:id="@+id/teamBluePlayerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="6"
-            android:minEms="6"
+            android:layout_marginStart="6dp"
+            android:maxEms="11"
+            android:minEms="11"
             android:text="Name"
             app:layout_constraintStart_toEndOf="@+id/teamBlueNr"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
@@ -174,9 +219,12 @@
             android:id="@+id/teamBlueP1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P1"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamBluePlayerName"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
@@ -184,9 +232,12 @@
             android:id="@+id/teamBlueP2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P2"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP1"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
@@ -194,9 +245,12 @@
             android:id="@+id/teamBlueP3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="P3"
+            android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP2"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
@@ -204,8 +258,11 @@
             android:id="@+id/teamBlueGoal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxEms="2"
-            android:minEms="2"
+            android:layout_marginStart="6dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:maxEms="1"
+            android:minEms="1"
             android:text="T"
             android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP3"
@@ -213,9 +270,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/team_white_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/white"
             android:clipToPadding="false"
             app:isGone="@{!edit}"
@@ -223,14 +280,15 @@
             tools:listitem="@layout/list_item_protocol_team"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/teamWhiteGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/edit_white_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/white"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -238,6 +296,7 @@
             tools:listitem="@layout/list_item_protocol_edit_team"
             app:isGone="@{edit}"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/teamWhiteGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
 
@@ -280,9 +339,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/team_blue_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/blue"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -290,14 +349,15 @@
             app:isGone="@{!edit}"
             tools:listitem="@layout/list_item_protocol_team"
             app:layout_constraintStart_toStartOf="@+id/teamBlueNr"
+            app:layout_constraintEnd_toEndOf="@+id/teamBlueGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/edit_blue_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/blue"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -305,18 +365,19 @@
             tools:listitem="@layout/list_item_protocol_edit_team"
             app:isGone="@{edit}"
             app:layout_constraintStart_toStartOf="@+id/teamBlueNr"
+            app:layout_constraintEnd_toEndOf="@+id/teamBlueGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
 
         <TextView
             android:id="@+id/result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:layout_marginStart="20sp"
             android:lines="1"
             android:text="VIERTEL-ERGEBNISSE"
-            app:layout_constraintStart_toEndOf="@+id/teamBlueName"
+            app:layout_constraintStart_toStartOf="@+id/guideline_team_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_end"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
@@ -452,7 +513,7 @@
             android:hint="0"
             android:maxEms="1"
             android:minEms="1"
-            android:text="@{goalsWhiteSecond}"
+            android:text="@{goalsWhiteThird}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             app:layout_constraintStart_toEndOf="@+id/third_quarter_result_title"
@@ -475,7 +536,7 @@
             android:hint="0"
             android:maxEms="1"
             android:minEms="1"
-            android:text="@{goalsBlueSecond}"
+            android:text="@{goalsBlueThird}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
@@ -490,7 +551,7 @@
             android:hint="0"
             android:maxEms="1"
             android:minEms="1"
-            android:text="@{goalsWhiteSecond}"
+            android:text="@{goalsWhiteFourth}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             app:layout_constraintStart_toEndOf="@+id/fourth_quarter_result_title"
@@ -513,7 +574,7 @@
             android:hint="0"
             android:maxEms="1"
             android:minEms="1"
-            android:text="@{goalsBlueSecond}"
+            android:text="@{goalsBlueFourth}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
@@ -575,14 +636,14 @@
 
         <TextView
             android:id="@+id/personal_foul_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20sp"
             android:maxEms="11"
             android:minEms="11"
             android:text="Persönliche Fehler"
             android:textAlignment="center"
-            app:layout_constraintStart_toEndOf="@+id/result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_foul_end"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
@@ -591,6 +652,8 @@
             android:layout_height="wrap_content"
             android:maxEms="5"
             android:minEms="5"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="Zeit"
             app:layout_constraintStart_toStartOf="@+id/personal_foul_title"
             app:layout_constraintTop_toBottomOf="@+id/personal_foul_title"/>
@@ -601,6 +664,8 @@
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="W"
             app:layout_constraintStart_toEndOf="@+id/personal_foul_time_title"
             app:layout_constraintTop_toBottomOf="@+id/personal_foul_title"/>
@@ -611,52 +676,60 @@
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="B"
             app:layout_constraintStart_toEndOf="@+id/personal_foul_white_title"
             app:layout_constraintTop_toBottomOf="@+id/personal_foul_title"/>
 
         <TextView
             android:id="@+id/personal_foul_type_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="Art"
             app:layout_constraintStart_toEndOf="@+id/personal_foul_blue_title"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_foul_end"
             app:layout_constraintTop_toBottomOf="@+id/personal_foul_title"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/personal_foul_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="1"
             tools:listitem="@layout/list_item_personal_foul"
             app:layout_constraintStart_toStartOf="@+id/personal_foul_time_title"
-            app:layout_constraintTop_toBottomOf="@+id/personal_foul_time_title"/>
+            app:layout_constraintEnd_toStartOf="@+id/guideline_foul_end"
+            app:layout_constraintTop_toBottomOf="@+id/personal_foul_time_title"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <TextView
             android:id="@+id/goals_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20sp"
             android:maxEms="11"
             android:minEms="11"
             android:text="Tore"
             android:textAlignment="center"
-            app:layout_constraintStart_toEndOf="@+id/personal_foul_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_foul_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_goals_order_start"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/goals_order_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="4"
             android:minEms="4"
             android:text="Torfolge"
             android:textAlignment="center"
-            app:layout_constraintStart_toEndOf="@+id/goals_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_goals_order_start"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
@@ -665,6 +738,8 @@
             android:layout_height="wrap_content"
             android:maxEms="5"
             android:minEms="5"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="Zeit"
             app:layout_constraintStart_toStartOf="@+id/goals_title"
             app:layout_constraintTop_toBottomOf="@+id/goals_title"/>
@@ -675,6 +750,8 @@
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="W"
             app:layout_constraintStart_toEndOf="@+id/goals_time_title"
             app:layout_constraintTop_toBottomOf="@+id/goals_title"/>
@@ -685,52 +762,63 @@
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="B"
             app:layout_constraintStart_toEndOf="@+id/goals_white_title"
             app:layout_constraintTop_toBottomOf="@+id/goals_title"/>
 
         <TextView
             android:id="@+id/goals_type_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
             android:text="Art"
             app:layout_constraintStart_toEndOf="@+id/goals_blue_title"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_goals_order_start"
             app:layout_constraintTop_toBottomOf="@+id/goals_title"/>
 
         <TextView
             android:id="@+id/goals_order_white_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
             android:text="W"
+            android:gravity="center_horizontal"
             android:textAlignment="center"
-            app:layout_constraintStart_toEndOf="@+id/goals_type_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_goals_order_start"
+            app:layout_constraintEnd_toStartOf="@+id/goals_order_blue_title"
             app:layout_constraintTop_toBottomOf="@+id/goals_order_title"/>
 
         <TextView
             android:id="@+id/goals_order_blue_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
             android:text="B"
+            android:gravity="center_horizontal"
             android:textAlignment="center"
             app:layout_constraintStart_toEndOf="@+id/goals_order_white_title"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/goals_order_title"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/goals_recyclerview"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="1"
             tools:listitem="@layout/list_item_goals"
             app:layout_constraintStart_toStartOf="@+id/goals_time_title"
-            app:layout_constraintTop_toBottomOf="@+id/goals_time_title"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/goals_time_title"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

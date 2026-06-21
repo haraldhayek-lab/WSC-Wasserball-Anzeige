@@ -40,12 +40,34 @@ class ProcessBT() {
 
         fun sendMessageToMainBoard(text: String) {
             if (mainBoardConnected) {
+                if (text.startsWith("player%")) {
+                    Log.d(TAG, "mainboard player command -> $text")
+                }
                 val textTemp = "$text%"
                 val check = btSocketMainBoard?.let { sendMessage(textTemp, it) }
                 if (!check!!) {
+                    if (text.startsWith("player%")) {
+                        Log.d(TAG, "mainboard player command failed -> $text")
+                    }
                     mainBoardConnected = false
                 }
+            } else if (text.startsWith("player%")) {
+                Log.d(TAG, "mainboard player command skipped, board not connected -> $text")
             }
+        }
+
+        fun triggerMainBoardHorn() {
+            sendMessageToMainBoard("horn")
+        }
+
+        fun startConnectedDisplaysHorn() {
+            sendMessageToMainBoard("horn%start")
+            sendMessageToAllShotClock("horn%start")
+        }
+
+        fun stopConnectedDisplaysHorn() {
+            sendMessageToMainBoard("horn%stop")
+            sendMessageToAllShotClock("horn%stop")
         }
 
         fun sendMessageToShotClock(text: String, index: Int) {
@@ -129,10 +151,7 @@ class ProcessBT() {
                     mainBoardMyUUID?.let { connectToDevice(remoteMainBoard!!, it) }
                     if (mainBoardConnected) {
                         Log.d(TAG, "connected")
-                        val textMain = initMainBoardAfterConnection()
-                        sendMessageToMainBoard(textMain)
-                        Thread.sleep(1000)
-                        sendMessageToMainBoard("gameSection%1")
+                        syncMainBoardAfterConnection()
                         return true
                     } else {
                         Log.d(TAG, "mainboard not connected")
@@ -157,11 +176,7 @@ class ProcessBT() {
                 Log.d(TAG, "yo3: $index")
                 if (shotClocksConnected[index]) {
                     Log.d(TAG, "connected")
-                    val textMain = initShotClocksAfterConnection("main")
-                    val textShot = initShotClocksAfterConnection("shotclock")
-                    sendMessageToShotClock(textMain, index)
-                    Thread.sleep(1000)
-                    sendMessageToShotClock(textShot, index)
+                    syncShotClockAfterConnection(index)
                     return true
                 } else {
                     Log.d(TAG, "shotclock1 not connected")
@@ -179,6 +194,26 @@ class ProcessBT() {
         val colorMainTime = if (minutes < 1) "red" else "default"
         Log.d(TAG, "send main")
         return "timeGame%$minutes:$secondsString%$colorMainTime"
+    }
+
+    private fun syncMainBoardAfterConnection() {
+        sendMessageToMainBoard(initMainBoardAfterConnection())
+        Thread.sleep(200)
+        sendMessageToMainBoard("gameSection%${GameControl.getCurrentGameSection()}")
+        Thread.sleep(200)
+        sendMessageToMainBoard(GameControl.getDisplayedResultCommand())
+        GameControl.getPlayerExclusionCommands().forEach { command ->
+            Thread.sleep(80)
+            sendMessageToMainBoard(command)
+        }
+    }
+
+    private fun syncShotClockAfterConnection(index: Int) {
+        val textMain = initShotClocksAfterConnection("main")
+        val textShot = initShotClocksAfterConnection("shotclock")
+        sendMessageToShotClock(textMain, index)
+        Thread.sleep(200)
+        sendMessageToShotClock(textShot, index)
     }
 
     private fun initShotClocksAfterConnection(mode: String): String {
@@ -223,7 +258,6 @@ class ProcessBT() {
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createRfcommSocketToServiceRecord(uuid)
         }
-
         override fun run() {
             // Cancel discovery because it otherwise slows down the connection.
             bluetoothAdapter?.cancelDiscovery()
@@ -235,6 +269,13 @@ class ProcessBT() {
                     // until it succeeds or throws an exception.
                     socket.connect()
                     Log.d(TAG, "Socket is connected: ${socket.isConnected}")
+                    when (device.name) {
+                        MAIN_BOARD_BT_NAME -> mainBoardConnected = true
+                        SHOTCLOCK_1_BT_NAME -> shotClocksConnected[0] = true
+                        SHOTCLOCK_2_BT_NAME -> shotClocksConnected[1] = true
+                        SHOTCLOCK_3_BT_NAME -> shotClocksConnected[2] = true
+                        SHOTCLOCK_4_BT_NAME -> shotClocksConnected[3] = true
+                    }
                     manageMyConnectedSocket(socket, device.name)
                 }
             } catch (ex: Exception) {
@@ -326,7 +367,7 @@ class ProcessBT() {
     private fun requestBTPermisson() {
         if (bluetoothAdapter != null) {
             if (!bluetoothAdapter.isEnabled) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
 //                if (myActivity != null) {
 //                    startActivityForResult(myActivity, enableBtIntent, REQUEST_ENABLE_BT, null)
 //                }

@@ -414,6 +414,23 @@
             android:textColor="@color/black"
             app:backgroundTint="@color/white"
             app:layout_constraintStart_toEndOf="@+id/btn_W_12"
+            app:layout_constraintEnd_toStartOf="@+id/btn_W_14"
+            app:layout_constraintTop_toTopOf="@+id/btn_W_8"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_W_8" />
+
+        <Button
+            android:id="@+id/btn_W_14"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1sp"
+            android:autoSizeMinTextSize="@dimen/playerBtnTextSizeMin"
+            android:autoSizeTextType="uniform"
+            android:onClick="@{clickListener}"
+            android:text="@string/W14"
+            android:maxLines="2"
+            android:textColor="@color/black"
+            app:backgroundTint="@color/white"
+            app:layout_constraintStart_toEndOf="@+id/btn_W_13"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/btn_W_8"
             app:layout_constraintBottom_toBottomOf="@+id/btn_W_8" />
@@ -493,6 +510,19 @@
             android:textColor="@color/red"
             app:layout_constraintStart_toStartOf="@+id/btn_W_13"
             app:layout_constraintEnd_toEndOf="@+id/btn_W_13"
+            app:layout_constraintTop_toTopOf="@+id/exclusion_W_8"
+            app:layout_constraintBottom_toBottomOf="@+id/exclusion_W_8" />
+
+        <TextView
+            android:id="@+id/exclusion_W_14"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            android:textColor="@color/red"
+            app:layout_constraintStart_toStartOf="@+id/btn_W_14"
+            app:layout_constraintEnd_toEndOf="@+id/btn_W_14"
             app:layout_constraintTop_toTopOf="@+id/exclusion_W_8"
             app:layout_constraintBottom_toBottomOf="@+id/exclusion_W_8" />
 
@@ -795,6 +825,23 @@
             android:textColor="@color/white"
             app:backgroundTint="@color/blue"
             app:layout_constraintStart_toEndOf="@+id/btn_B_12"
+            app:layout_constraintEnd_toStartOf="@+id/btn_B_14"
+            app:layout_constraintTop_toBottomOf="@+id/exclusion_B_1"
+            app:layout_constraintBottom_toBottomOf="@+id/btn_B_8" />
+
+        <Button
+            android:id="@+id/btn_B_14"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="1sp"
+            android:autoSizeMinTextSize="@dimen/playerBtnTextSizeMin"
+            android:autoSizeTextType="uniform"
+            android:onClick="@{clickListener}"
+            android:text="@string/B14"
+            android:maxLines="2"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/blue"
+            app:layout_constraintStart_toEndOf="@+id/btn_B_13"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/exclusion_B_1"
             app:layout_constraintBottom_toBottomOf="@+id/btn_B_8" />
@@ -874,6 +921,19 @@
             android:textColor="@color/red"
             app:layout_constraintStart_toStartOf="@+id/btn_B_13"
             app:layout_constraintEnd_toEndOf="@+id/btn_B_13"
+            app:layout_constraintTop_toTopOf="@+id/exclusion_B_8"
+            app:layout_constraintBottom_toBottomOf="@+id/exclusion_B_8" />
+
+        <TextView
+            android:id="@+id/exclusion_B_14"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:textAlignment="center"
+            android:textColor="@color/red"
+            app:layout_constraintStart_toStartOf="@+id/btn_B_14"
+            app:layout_constraintEnd_toEndOf="@+id/btn_B_14"
             app:layout_constraintTop_toTopOf="@+id/exclusion_B_8"
             app:layout_constraintBottom_toBottomOf="@+id/exclusion_B_8" />
 

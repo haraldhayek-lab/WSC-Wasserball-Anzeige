@@ -9,11 +9,13 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.view.MotionEvent
 import android.view.*
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.allViews
@@ -46,8 +48,8 @@ class GameFragment : Fragment() {
     private var tempCurrentCountdown: Long = 0
 
     private val myArray = arrayOf("A", "O")
-    private val exclusionResultWhite = (Array(13) { ExclResult("", "", "") }).toMutableList()
-    private val exclusionResultBlue = (Array(13) { ExclResult("", "", "") }).toMutableList()
+    private val exclusionResultWhite = (Array(PLAYER_COUNT) { ExclResult("", "", "") }).toMutableList()
+    private val exclusionResultBlue = (Array(PLAYER_COUNT) { ExclResult("", "", "") }).toMutableList()
 
     lateinit var bindingButtonsBlue: Map<Int, Button>
     lateinit var bindingButtonsWhite: Map<Int, Button>
@@ -61,6 +63,7 @@ class GameFragment : Fragment() {
         null
     )
     var mainBoardConnectItem: MenuItem? = null
+    var mainBoardBrightnessItem: MenuItem? = null
     val shotclockConnectItems = mutableListOf<MenuItem?>(
         null,
         null,
@@ -75,6 +78,8 @@ class GameFragment : Fragment() {
         null
     )
     var liveMenuItem: MenuItem? = null
+    var hornMenuItem: MenuItem? = null
+    var pauseShortenMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,22 +132,7 @@ class GameFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (!viewModel.btSearchExecuted) {
-            viewModel.btSearchExecuted = true
-            val builder = AlertDialog.Builder(view.context)
-            builder.setCancelable(false)
-            builder.setTitle("LED Tafel")
-            builder.setMessage("LED Tafel verbinden?")
-            builder.setIcon(R.drawable.ic_bluetooth)
-            builder.setPositiveButton(resources.getString(R.string.connect)) { _, _ ->
-                viewModel.bluetoothConnectAll()
-            }
-            builder.setNegativeButton("Cancel") { _, _ ->
-//                setOptionsMenu()
-            }
-            builder.show()
-        }
+        viewModel.btSearchExecuted = true
     }
 
     private fun processBtnClickEvent(it: View) {
@@ -304,51 +294,23 @@ class GameFragment : Fragment() {
         shotclockConnectItems[1] = menu.findItem(R.id.shotclock2_connect_item)
         shotclockConnectItems[2] = menu.findItem(R.id.shotclock3_connect_item)
         shotclockConnectItems[3] = menu.findItem(R.id.shotclock4_connect_item)
+        mainBoardBrightnessItem = menu.findItem(R.id.mainboard_brigthness_item)
         brightnessAllItem = menu.findItem(R.id.brigthness_all_item)
         brightnessShotclocks[0] = menu.findItem(R.id.brigthness_shotclock_1_item)
         brightnessShotclocks[1] = menu.findItem(R.id.brigthness_shotclock_2_item)
         brightnessShotclocks[2] = menu.findItem(R.id.brigthness_shotclock_3_item)
         brightnessShotclocks[3] = menu.findItem(R.id.brigthness_shotclock_4_item)
         liveMenuItem = menu.findItem(R.id.item_live)
+        hornMenuItem = menu.findItem(R.id.item_horn)
+        pauseShortenMenuItem = menu.findItem(R.id.item_edit_pause_time)
+        hornMenuItem?.actionView = createHornActionView()
         setOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return (when (item.itemId) {
             R.id.item_new_game -> {
-                val dialog = Dialog(requireContext())
-                dialog.setContentView(R.layout.dialog_new_game)
-
-                val dialogButtonOk = dialog.findViewById<Button>(R.id.dialogBtnOK)
-                val dialogButtonCancel = dialog.findViewById<Button>(R.id.dialogBtnCancel)
-
-//                val numPickerSectionLength =
-//                    dialog.findViewById<NumberPicker>(R.id.numberpicker_game_section)
-//                val numPickerBreak = dialog.findViewById<NumberPicker>(R.id.numberpicker_break)
-//                val numPickerNumberOfSection =
-//                    dialog.findViewById<NumberPicker>(R.id.numberpicker_number_of_section)
-//                numPickerSectionLength.maxValue = 20
-//                numPickerSectionLength.minValue = 1
-//                numPickerSectionLength.value = 8
-//                numPickerBreak.maxValue = 20
-//                numPickerBreak.minValue = 1
-//                numPickerBreak.value = 2
-//                numPickerNumberOfSection.maxValue = 4
-//                numPickerNumberOfSection.minValue = 1
-//                numPickerNumberOfSection.value = 4
-//
-//                dialogButtonOk.setOnClickListener {
-//                    Toast.makeText(requireContext(), "test me", Toast.LENGTH_SHORT).show()
-//                    GameControl.gameSectionLength = numPickerSectionLength.value * 60
-//                    GameControl.numberOfGameSection = numPickerNumberOfSection.value
-//                    viewModel.newGame()
-//                    dialog.dismiss()
-//                }
-//
-//                dialogButtonCancel.setOnClickListener {
-//                    dialog.dismiss()
-//                }
-//                dialog.show()
+                showNewGameConfirmDialog()
                 true
             }
             R.id.item_live -> {
@@ -409,6 +371,43 @@ class GameFragment : Fragment() {
                 dialog.show()
                 true
             }
+            R.id.item_edit_pause_time -> {
+                val dialog = Dialog(requireContext())
+                dialog.setContentView(R.layout.dialog_edit_time)
+
+                val dialogButtonOk = dialog.findViewById<Button>(R.id.dialogBtnOK)
+                val dialogButtonCancel = dialog.findViewById<Button>(R.id.dialogBtnCancel)
+
+                val numPickerMinutes = dialog.findViewById<NumberPicker>(R.id.numberpicker_minutes)
+                val numPickerSeconds = dialog.findViewById<NumberPicker>(R.id.numberpicker_seconds)
+                val numPickerSecondsSmall =
+                    dialog.findViewById<NumberPicker>(R.id.numberpicker_seconds_small)
+                numPickerMinutes.maxValue = 20
+                numPickerMinutes.minValue = 0
+                numPickerMinutes.value = 0
+                numPickerSeconds.maxValue = 59
+                numPickerSeconds.minValue = 0
+                numPickerSeconds.value = 16
+                numPickerSecondsSmall.maxValue = 9
+                numPickerSecondsSmall.minValue = 0
+                numPickerSecondsSmall.value = 0
+
+                dialogButtonOk.setOnClickListener {
+                    val newPauseCountdown =
+                        ((numPickerMinutes.value * 60 * 1000) + (numPickerSeconds.value * 1000) + (numPickerSecondsSmall.value * 100)).toLong()
+                    val pauseWasEdited = GameControl.setPauseTimeEdit(newPauseCountdown)
+                    if (!pauseWasEdited) {
+                        Toast.makeText(requireContext(), "Keine aktive Pause", Toast.LENGTH_SHORT).show()
+                    }
+                    dialog.dismiss()
+                }
+
+                dialogButtonCancel.setOnClickListener {
+                    dialog.dismiss()
+                }
+                dialog.show()
+                true
+            }
             R.id.item_edit_shotclock -> {
                 val dialog = Dialog(requireContext())
                 dialog.setContentView(R.layout.dialog_edit_shotclock)
@@ -438,6 +437,10 @@ class GameFragment : Fragment() {
                     dialog.dismiss()
                 }
                 dialog.show()
+                true
+            }
+            R.id.item_game_settings -> {
+                showGameSettingsDialog()
                 true
             }
             R.id.mainboard_brigthness_item -> {
@@ -471,6 +474,22 @@ class GameFragment : Fragment() {
                 dialog.show()
                 true
             }
+            R.id.brigthness_shotclock_1_item -> {
+                showShotclockBrightnessDialog(0)
+                true
+            }
+            R.id.brigthness_shotclock_2_item -> {
+                showShotclockBrightnessDialog(1)
+                true
+            }
+            R.id.brigthness_shotclock_3_item -> {
+                showShotclockBrightnessDialog(2)
+                true
+            }
+            R.id.brigthness_shotclock_4_item -> {
+                showShotclockBrightnessDialog(3)
+                true
+            }
             R.id.connect_all_item -> {
                 binding.bluetoothConnectionProgressBar.visibility = View.VISIBLE
                 binding.bluetoothConnectionTextview.visibility = View.VISIBLE
@@ -502,11 +521,146 @@ class GameFragment : Fragment() {
         })
     }
 
+    private fun showGameSettingsDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_edit_settings)
+
+        val dialogButtonOk = dialog.findViewById<Button>(R.id.dialogBtnOK)
+        val dialogButtonCancel = dialog.findViewById<Button>(R.id.dialogBtnCancel)
+
+        val numPickerMinutes = dialog.findViewById<NumberPicker>(R.id.numberpicker_min)
+        val numPickerSeconds = dialog.findViewById<NumberPicker>(R.id.numberpicker_sec)
+        val numPickerBreakBig = dialog.findViewById<NumberPicker>(R.id.numberpicker_break_big)
+        val numPickerBreakSmall = dialog.findViewById<NumberPicker>(R.id.numberpicker_break_small)
+        val numPickerTimeoutLength = dialog.findViewById<NumberPicker>(R.id.numberpicker_timeout_length)
+        val numPickerTimeoutAmount = dialog.findViewById<NumberPicker>(R.id.numberpicker_timeout_amount)
+        val numPickerShotclockLong = dialog.findViewById<NumberPicker>(R.id.numberpicker_shotclock_long)
+        val numPickerShotclockShort = dialog.findViewById<NumberPicker>(R.id.numberpicker_shotclock_short)
+        val numPickerPeriods = dialog.findViewById<NumberPicker>(R.id.numberpicker_periods)
+        val numPickerOt = dialog.findViewById<NumberPicker>(R.id.numberpicker_ot)
+        val numPickerPso = dialog.findViewById<NumberPicker>(R.id.numberpicker_pso)
+
+        configureNumberPicker(numPickerMinutes, 0, 20, GameControl.gameSectionLength / 60)
+        configureNumberPicker(numPickerSeconds, 0, 59, GameControl.gameSectionLength % 60)
+        configureNumberPicker(numPickerBreakBig, 0, 20, DEFAULT_PAUSE_LONG_LENGTH / 60)
+        configureNumberPicker(numPickerBreakSmall, 0, 20, DEFAULT_PAUSE_SHORT_LENGTH / 60)
+        configureNumberPicker(numPickerTimeoutLength, 0, 5, DEFAULT_TIMEOUT_LENGTH / 60)
+        configureNumberPicker(numPickerTimeoutAmount, 0, 10, DEFAULT_MAX_TIMEOUT)
+        configureNumberPicker(numPickerShotclockLong, 0, 60, DEFAULT_SHOTCLOCK_BIG_LENGTH)
+        configureNumberPicker(numPickerShotclockShort, 0, 60, DEFAULT_SHOTCLOCK_SMALL_LENGTH)
+        configureNumberPicker(numPickerPeriods, 1, 4, GameControl.numberOfGameSection)
+        configureBooleanPicker(numPickerOt, GameControl.isOvertimeEnabled())
+        configureBooleanPicker(numPickerPso, GameControl.isPsoEnabled())
+
+        dialogButtonOk.setOnClickListener {
+            viewModel.applyAndPersistGameStandards(
+                GameStandards(
+                    numberOfGameSection = numPickerPeriods.value,
+                    overtimeEnabled = numPickerOt.value == 1,
+                    psoEnabled = numPickerPso.value == 1,
+                    gameSectionLength = (numPickerMinutes.value * 60) + numPickerSeconds.value,
+                    shotclockLongLength = numPickerShotclockLong.value,
+                    shotclockShortLength = numPickerShotclockShort.value,
+                    pauseLongLength = numPickerBreakBig.value * 60,
+                    pauseShortLength = numPickerBreakSmall.value * 60,
+                    timeoutLength = numPickerTimeoutLength.value * 60,
+                    maxTimeout = numPickerTimeoutAmount.value
+                )
+            )
+
+            dialog.dismiss()
+        }
+
+        dialogButtonCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showShotclockBrightnessDialog(index: Int) {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_brightness)
+        val slider = dialog.findViewById<Slider>(R.id.slider_brightness)
+        slider.value = viewModel.shotclockBrightness[index].toFloat()
+        slider.addOnChangeListener { _, value, _ ->
+            val output = "brightness%${value.toInt()}"
+            Log.d(TAG, "shotclock brightness[$index]: $value")
+            ProcessBT.sendMessageToShotClock(output, index)
+            viewModel.shotclockBrightness[index] = value.toInt()
+        }
+        dialog.show()
+    }
+
+    private fun showNewGameConfirmDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_confirm_new_game)
+
+        val dialogButtonYes = dialog.findViewById<Button>(R.id.dialogBtnYes)
+        val dialogButtonNo = dialog.findViewById<Button>(R.id.dialogBtnNo)
+
+        dialogButtonYes.setOnClickListener {
+            viewModel.newGame()
+            dialog.dismiss()
+        }
+
+        dialogButtonNo.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.3f).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun configureNumberPicker(numberPicker: NumberPicker, minValue: Int, maxValue: Int, value: Int) {
+        numberPicker.minValue = minValue
+        numberPicker.maxValue = maxValue
+        numberPicker.value = value.coerceIn(minValue, maxValue)
+    }
+
+    private fun configureBooleanPicker(numberPicker: NumberPicker, value: Boolean) {
+        numberPicker.displayedValues = null
+        numberPicker.minValue = 0
+        numberPicker.maxValue = 1
+        numberPicker.displayedValues = arrayOf("Nein", "Ja")
+        numberPicker.value = if (value) 1 else 0
+    }
+
+    private fun createHornActionView(): View {
+        return AppCompatImageButton(requireContext()).apply {
+            setImageResource(R.drawable.ic_horn)
+            contentDescription = getString(R.string.horn)
+            background = null
+            setPadding(16, 16, 16, 16)
+            setOnTouchListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        GameControl.startManualHorn()
+                        ProcessBT.startConnectedDisplaysHorn()
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        GameControl.stopManualHorn()
+                        ProcessBT.stopConnectedDisplaysHorn()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
     private fun setOptionsMenu() {
         val connectedDevicesCounter =
             (if (ProcessBT.mainBoardConnected) 1 else 0) + (if (ProcessBT.shotClocksConnected[0]) 1 else 0) + (if (ProcessBT.shotClocksConnected[1]) 1 else 0) + (if (ProcessBT.shotClocksConnected[2]) 1 else 0) + (if (ProcessBT.shotClocksConnected[3]) 1 else 0)
         if (LedBoardMenuItem != null) {
             when (connectedDevicesCounter) {
+                0 -> {
+                    LedBoardMenuItem!!.icon = activity?.let {ContextCompat.getDrawable(it, R.drawable.ic_no_shotclock_connected)}
+                }
                 1 -> {
                     LedBoardMenuItem!!.icon = activity?.let {ContextCompat.getDrawable(it, R.drawable.ic_one_device_connected)}
                 }
@@ -538,8 +692,8 @@ class GameFragment : Fragment() {
                     }
                 }
             }
-            if (connectedDevicesCounter > 0 && brightnessAllItem != null) {
-                brightnessAllItem!!.isEnabled = true
+            if (brightnessAllItem != null) {
+                brightnessAllItem!!.isEnabled = connectedDevicesCounter > 0
             }
         }
         if (mainBoardMenuItem != null) {
@@ -550,6 +704,7 @@ class GameFragment : Fragment() {
                 )
             }
             mainBoardConnectItem?.isEnabled = !ProcessBT.mainBoardConnected
+            mainBoardBrightnessItem?.isEnabled = ProcessBT.mainBoardConnected
         }
         shotclockMenuItems.forEachIndexed { index, menuItem ->
             Log.d(TAG, "MenuItem-$index: ${menuItem != null}")
@@ -564,6 +719,10 @@ class GameFragment : Fragment() {
                 brightnessShotclocks[index]?.isEnabled = ProcessBT.shotClocksConnected[index]
             }
         }
+
+        val pauseTimerRunning = GameControl.isPauseTimerRunning()
+        pauseShortenMenuItem?.isEnabled = pauseTimerRunning
+        pauseShortenMenuItem?.isVisible = pauseTimerRunning
     }
 
     private fun initObservers() {
@@ -584,6 +743,12 @@ class GameFragment : Fragment() {
         val shotclockSecondsSmallObserver = Observer<String> { newValue ->
             binding.shotclockSecondsSmallView.text = newValue
         }
+        val shotclockBigButtonLabelObserver = Observer<String> { newValue ->
+            binding.btnTimeShotclockBig.text = newValue
+        }
+        val shotclockSmallButtonLabelObserver = Observer<String> { newValue ->
+            binding.btnTimeShotclockSmall.text = newValue
+        }
         val currentGameSectionObserver = Observer<String> { newValue ->
             binding.currentGameSection.text = newValue
             if (newValue.isDigitsOnly()) {
@@ -599,6 +764,9 @@ class GameFragment : Fragment() {
                 if (newValue) View.VISIBLE else View.GONE
             binding.bluetoothConnectionProgressBar.visibility =
                 if (newValue) View.VISIBLE else View.GONE
+            if (!newValue) {
+                setOptionsMenu()
+            }
         }
 
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
@@ -607,6 +775,8 @@ class GameFragment : Fragment() {
         viewModel.mainSecondsSmall.observe(viewLifecycleOwner, mainSecondsSmallObserver)
         viewModel.shotclockSeconds.observe(viewLifecycleOwner, shotclockSecondsObserver)
         viewModel.shotclockSecondsSmall.observe(viewLifecycleOwner, shotclockSecondsSmallObserver)
+        viewModel.shotclockBigButtonLabel.observe(viewLifecycleOwner, shotclockBigButtonLabelObserver)
+        viewModel.shotclockSmallButtonLabel.observe(viewLifecycleOwner, shotclockSmallButtonLabelObserver)
         viewModel.currentGameSection.observe(viewLifecycleOwner, currentGameSectionObserver)
         viewModel.connectTextview.observe(viewLifecycleOwner, connectTextSetTextObserver)
         viewModel.theConnectViewsVisibility.observe(
@@ -617,6 +787,7 @@ class GameFragment : Fragment() {
             binding.btnTimeStartStop.isClickable = newValue
             binding.btnTimeShotclockBig.isClickable = newValue
             binding.btnTimeShotclockSmall.isClickable = newValue
+            setOptionsMenu()
         }
         viewModel.timeClickable.observe(viewLifecycleOwner, timeClickableObserver)
 
@@ -665,6 +836,7 @@ class GameFragment : Fragment() {
         viewModel.goals.observe(viewLifecycleOwner) { result ->
             binding.goalsWhite = result.white
             binding.goalsBlue = result.blue
+            GameControl.setDisplayedResult(result.white, result.blue)
             val mainBoardString = "result%${result.white}:${result.blue}"
             ProcessBT.sendMessageToMainBoard(mainBoardString)
         }
@@ -773,6 +945,7 @@ class GameFragment : Fragment() {
             } else {
                 result.e1.length + result.e2.length + result.e3.length
             }
+            GameControl.setDisplayedExclusionCount(cap, index + 1, numberOfExclusions)
             ProcessBT.sendMessageToMainBoard("player%$cap%${index + 1}%$numberOfExclusions")
         }
     }

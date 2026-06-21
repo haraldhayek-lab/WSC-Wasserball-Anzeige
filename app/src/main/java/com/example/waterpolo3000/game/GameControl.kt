@@ -1,5 +1,7 @@
 package com.example.waterpolo3000.game
 
+import android.app.Application
+import android.content.Context
 import android.content.ContentValues.TAG
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -30,24 +32,32 @@ class GameControl() {
         private var timeIsRunning = false
         private var currentGameSection = 1
         var numberOfGameSection = DEFAULT_NUMBER_OF_GAME_SECTION
-        private var maxGameSection = numberOfGameSection
+        private var overtimeEnabled = DEFAULT_OVERTIME_ENABLED
+        private var psoEnabled = DEFAULT_PSO_ENABLED
+        private var maxGameSection = calculateMaxGameSection()
 
         var timerCountdown: CountDownTimer? = null
         var timerPause: CountDownTimer? = null
         var currentGameGuid = UUID.randomUUID().toString()
         var savedCountdown: Long = 0
+        private var toneGenerator: ToneGenerator? = null
+        private var pauseWarningPlayed = false
+        private var activePauseMode = 0
+        private var displayedGoalsWhite = "0"
+        private var displayedGoalsBlue = "0"
+        private val mainBoardPlayerExclusionCounts = mutableMapOf<String, Int>()
 
         var game = Game(currentGameGuid)
         var teamBlue = Team(UUID.randomUUID().toString())
         var teamWhite = Team(UUID.randomUUID().toString())
-        var playersListBlue = Array(13) { Player(UUID.randomUUID().toString()) }
-        var playersListWhite = Array(13) { Player(UUID.randomUUID().toString()) }
+        var playersListBlue = Array(PLAYER_COUNT) { Player(UUID.randomUUID().toString()) }
+        var playersListWhite = Array(PLAYER_COUNT) { Player(UUID.randomUUID().toString()) }
         var playersListAll = playersListBlue + playersListWhite
-        private var participantListBlueTemp = Array(13) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListBlue[i].guid, BLUE, i+1, teamBlue.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
+        private var participantListBlueTemp = Array(PLAYER_COUNT) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListBlue[i].guid, BLUE, i+1, teamBlue.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
         private var participantTeamBlue = Participant(UUID.randomUUID().toString(), game.guid, teamBlue.guid, BLUE, 0, teamBlue.guid, FUNCTION_TYPE_OTHER)
         var participantListBlue = listOf(participantTeamBlue) + participantListBlueTemp
-        private var participantListWhiteTemp = Array(13) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListWhite[i].guid, WHITE, i+1, teamWhite.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
-        private var participantTeamWhite = Participant(UUID.randomUUID().toString(), game.guid, teamWhite.guid, BLUE, 0, teamWhite.guid, FUNCTION_TYPE_OTHER)
+        private var participantListWhiteTemp = Array(PLAYER_COUNT) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListWhite[i].guid, WHITE, i+1, teamWhite.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
+        private var participantTeamWhite = Participant(UUID.randomUUID().toString(), game.guid, teamWhite.guid, WHITE, 0, teamWhite.guid, FUNCTION_TYPE_OTHER)
         var participantListWhite = listOf(participantTeamWhite) + participantListWhiteTemp
         var participantListAll = participantListBlue + participantListWhite
 
@@ -55,6 +65,8 @@ class GameControl() {
 
         fun init() {
             setDefaults()
+            recalculateMaxGameSection()
+            resetDisplaySyncState()
 
             // create all initial records for the db
             teamBlue.teamName = "Mannschaft blau"
@@ -65,12 +77,14 @@ class GameControl() {
         }
 
         fun newGame() {
+            resetDisplaySyncState()
+            activePauseMode = 0
             currentCountdown = gameSectionLength.toLong() * 1000
             currentCountdownShotclock = shotclockLongLength.toLong() * 1000
             gameStarted = false
             timeIsRunning = false
             currentGameSection = 1
-            maxGameSection = numberOfGameSection
+            recalculateMaxGameSection()
             myViewModel.currentGameSection.value = currentGameSection.toString()
             timerCountdown = null
             timerPause = null
@@ -112,16 +126,16 @@ class GameControl() {
         }
 
         private fun createPlayerList() {
-            playersListBlue = Array(13) { Player(UUID.randomUUID().toString()) }
-            playersListWhite = Array(13) { Player(UUID.randomUUID().toString()) }
+            playersListBlue = Array(PLAYER_COUNT) { Player(UUID.randomUUID().toString()) }
+            playersListWhite = Array(PLAYER_COUNT) { Player(UUID.randomUUID().toString()) }
         }
 
         private fun createParticipantList() {
-            participantListBlueTemp = Array(13) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListBlue[i].guid, BLUE, i+1, teamBlue.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
+            participantListBlueTemp = Array(PLAYER_COUNT) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListBlue[i].guid, BLUE, i+1, teamBlue.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
             participantTeamBlue = Participant(UUID.randomUUID().toString(), game.guid, teamBlue.guid, BLUE, 0, teamBlue.guid, FUNCTION_TYPE_OTHER)
             participantListBlue = listOf(participantTeamBlue) + participantListBlueTemp
-            participantListWhiteTemp = Array(13) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListWhite[i].guid, WHITE, i+1, teamWhite.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
-            participantTeamWhite = Participant(UUID.randomUUID().toString(), game.guid, teamWhite.guid, BLUE, 0, teamWhite.guid, FUNCTION_TYPE_OTHER)
+            participantListWhiteTemp = Array(PLAYER_COUNT) {i -> Participant(UUID.randomUUID().toString(), game.guid, playersListWhite[i].guid, WHITE, i+1, teamWhite.guid, if(i==0) FUNCTION_TYPE_GOALKEEPER else FUNCTION_TYPE_FIELDPLAYER)}
+            participantTeamWhite = Participant(UUID.randomUUID().toString(), game.guid, teamWhite.guid, WHITE, 0, teamWhite.guid, FUNCTION_TYPE_OTHER)
             participantListWhite = listOf(participantTeamWhite) + participantListWhiteTemp
         }
 
@@ -137,8 +151,117 @@ class GameControl() {
             myViewModel.setNewMainTime(gameSectionLength / 60, gameSectionLength % 60, 0)
         }
 
+        private fun resetDisplaySyncState() {
+            displayedGoalsWhite = "0"
+            displayedGoalsBlue = "0"
+            mainBoardPlayerExclusionCounts.clear()
+            for (number in 1..PLAYER_COUNT) {
+                mainBoardPlayerExclusionCounts["$BLUE:$number"] = 0
+                mainBoardPlayerExclusionCounts["$WHITE:$number"] = 0
+            }
+        }
+
         private fun setShotclockDefaults(default: Int) {
             myViewModel.setNewShotclock(default % 60, 0)
+        }
+
+        private fun recalculateMaxGameSection() {
+            maxGameSection = calculateMaxGameSection()
+        }
+
+        private fun calculateMaxGameSection(): Int {
+            val overtimeSections = if (overtimeEnabled) 2 else 0
+            val psoSections = if (psoEnabled) 1 else 0
+            return numberOfGameSection + overtimeSections + psoSections
+        }
+
+        fun restoreGameStandards(standards: GameStandards) {
+            numberOfGameSection = standards.numberOfGameSection
+            overtimeEnabled = standards.overtimeEnabled
+            psoEnabled = standards.psoEnabled
+            gameSectionLength = standards.gameSectionLength
+            shotclockLongLength = standards.shotclockLongLength
+            shotclockShortLength = standards.shotclockShortLength
+
+            DEFAULT_NUMBER_OF_GAME_SECTION = standards.numberOfGameSection
+            DEFAULT_OVERTIME_ENABLED = standards.overtimeEnabled
+            DEFAULT_PSO_ENABLED = standards.psoEnabled
+            DEFAULT_GAME_SECTION_LENGTH = standards.gameSectionLength
+            DEFAULT_SHOTCLOCK_BIG_LENGTH = standards.shotclockLongLength
+            DEFAULT_SHOTCLOCK_SMALL_LENGTH = standards.shotclockShortLength
+            DEFAULT_PAUSE_LONG_LENGTH = standards.pauseLongLength
+            DEFAULT_PAUSE_SHORT_LENGTH = standards.pauseShortLength
+            DEFAULT_TIMEOUT_LENGTH = standards.timeoutLength
+            DEFAULT_MAX_TIMEOUT = standards.maxTimeout
+
+            recalculateMaxGameSection()
+            currentCountdown = (gameSectionLength * 1000).toLong()
+            currentCountdownShotclock = (shotclockLongLength * 1000).toLong()
+        }
+
+        fun applyGameStandards(
+            newNumberOfGameSection: Int,
+            newOvertimeEnabled: Boolean,
+            newPsoEnabled: Boolean,
+            newGameSectionLength: Int,
+            newShotclockLongLength: Int,
+            newShotclockShortLength: Int,
+            newPauseLongLength: Int,
+            newPauseShortLength: Int,
+            newTimeoutLength: Int,
+            newMaxTimeout: Int
+        ) {
+            numberOfGameSection = newNumberOfGameSection
+            overtimeEnabled = newOvertimeEnabled
+            psoEnabled = newPsoEnabled
+            gameSectionLength = newGameSectionLength
+            shotclockLongLength = newShotclockLongLength
+            shotclockShortLength = newShotclockShortLength
+
+            DEFAULT_NUMBER_OF_GAME_SECTION = newNumberOfGameSection
+            DEFAULT_OVERTIME_ENABLED = newOvertimeEnabled
+            DEFAULT_PSO_ENABLED = newPsoEnabled
+            DEFAULT_GAME_SECTION_LENGTH = newGameSectionLength
+            DEFAULT_SHOTCLOCK_BIG_LENGTH = newShotclockLongLength
+            DEFAULT_SHOTCLOCK_SMALL_LENGTH = newShotclockShortLength
+            DEFAULT_PAUSE_LONG_LENGTH = newPauseLongLength
+            DEFAULT_PAUSE_SHORT_LENGTH = newPauseShortLength
+            DEFAULT_TIMEOUT_LENGTH = newTimeoutLength
+            DEFAULT_MAX_TIMEOUT = newMaxTimeout
+            recalculateMaxGameSection()
+
+            myViewModel.setShotclockButtonLabels(newShotclockLongLength, newShotclockShortLength)
+
+            if (!gameStarted) {
+                currentCountdown = (gameSectionLength * 1000).toLong()
+                currentCountdownShotclock = (shotclockLongLength * 1000).toLong()
+                setGameTimeEdit()
+                setShotclockEdit()
+            }
+        }
+
+        fun setDisplayedResult(white: String, blue: String) {
+            displayedGoalsWhite = white
+            displayedGoalsBlue = blue
+        }
+
+        fun setDisplayedExclusionCount(cap: String, number: Int, count: Int) {
+            mainBoardPlayerExclusionCounts["$cap:$number"] = count
+        }
+
+        fun getDisplayedResultCommand(): String {
+            return "result%$displayedGoalsWhite:$displayedGoalsBlue"
+        }
+
+        fun getPlayerExclusionCommands(): List<String> {
+            val commands = mutableListOf<String>()
+            for (number in 1..PLAYER_COUNT) {
+                commands.add("player%$BLUE%$number%${mainBoardPlayerExclusionCounts["$BLUE:$number"] ?: 0}")
+            }
+            for (number in 1..PLAYER_COUNT) {
+                commands.add("player%$WHITE%$number%${mainBoardPlayerExclusionCounts["$WHITE:$number"] ?: 0}")
+            }
+            return commands
         }
 
         fun processGameEvent(event: String, player: String) {
@@ -148,7 +271,7 @@ class GameControl() {
                 addExclusion(event.toInt(), player)
                 if(event.toInt() == 200) { // simple exclusion id  = 200
                     excutionTimeOffset[player] = currentCountdown
-                    myViewModel.exclusionTime.value = "$player:20.0"
+                    myViewModel.exclusionTime.value = "$player:${formatExclusionTime(getExclusionDurationMillis())}"
                 }
             }
         }
@@ -206,6 +329,26 @@ class GameControl() {
             ProcessBT.sendMessageToAllShotClock("shotclock%$shotclockSecondsString%$color%$shotclockSecondsSmall")
         }
 
+        fun setPauseTimeEdit(newCountdown: Long): Boolean {
+            if (activePauseMode == 0 || timerPause == null) {
+                return false
+            }
+
+            currentCountdown = newCountdown
+            timerPause?.cancel()
+            if (activePauseMode == 1) {
+                createTimerPause(currentCountdown)
+            } else {
+                createTimerTimeout(currentCountdown)
+            }
+            timerPause?.start()
+            return true
+        }
+
+        fun isPauseTimerRunning(): Boolean {
+            return activePauseMode != 0 && timerPause != null
+        }
+
         fun setGameTime() {
             // main time
             val currentCountdownTemp = currentCountdown
@@ -246,24 +389,27 @@ class GameControl() {
             val toBeRemove = mutableListOf<String>()
             if(excutionTimeOffset.isNotEmpty()){
                 excutionTimeOffset.forEach {
-//                    val remainingExclusionTime = 20 - MyTimeConverter.getSecondsFromLong(it.value - currentCountdownTemp)
-                    val remainingExclusionTimeSeconds = 19 - MyTimeConverter.getSecondsFromLong(it.value - currentCountdownTemp)
-                    val remainingExclusionTimeSecondsSmall = 9 - (MyTimeConverter.getSecondsSmallFromLong(it.value - currentCountdownTemp) % 10)
-                    if(remainingExclusionTimeSecondsSmall == 9) {
-                        myViewModel.exclusionTime.value = "${it.key}:$remainingExclusionTimeSeconds.$remainingExclusionTimeSecondsSmall"
-                    }
-                    if(remainingExclusionTimeSeconds == 0){
-                        myViewModel.exclusionTime.value = "${it.key}:0.${remainingExclusionTimeSecondsSmall}"
-                        if(remainingExclusionTimeSecondsSmall == 0) {
-                            myViewModel.exclusionTime.value = "${it.key}:0.0"
-                            toBeRemove.add(it.key)
-                        }
+                    val elapsedTime = it.value - currentCountdownTemp
+                    val remainingExclusionTime = (getExclusionDurationMillis() - elapsedTime).coerceAtLeast(0L)
+                    myViewModel.exclusionTime.value = "${it.key}:${formatExclusionTime(remainingExclusionTime)}"
+                    if (remainingExclusionTime == 0L) {
+                        toBeRemove.add(it.key)
                     }
                 }
             }
             toBeRemove.forEach {
                 excutionTimeOffset.remove(it)
             }
+        }
+
+        private fun getExclusionDurationMillis(): Long {
+            return shotclockShortLength.toLong() * 1000L
+        }
+
+        private fun formatExclusionTime(remainingMillis: Long): String {
+            val seconds = MyTimeConverter.getSecondsFromLong(remainingMillis)
+            val tenths = MyTimeConverter.getSecondsSmallFromLong(remainingMillis)
+            return "$seconds.$tenths"
         }
 
         fun newShotclockBig() {
@@ -336,16 +482,27 @@ class GameControl() {
         }
 
         private fun createTimerPause(pause: Long) {
+            activePauseMode = 1
+            pauseWarningPlayed = false
             timerPause = object : CountDownTimer(pause, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
                     currentCountdown = millisUntilFinished
-                    myViewModel.setPauseTime(
-                        MyTimeConverter.getMinutesFromLong(currentCountdown),
-                        MyTimeConverter.getSecondsFromLong(currentCountdown)
-                    )
+                    val minutes = MyTimeConverter.getMinutesFromLong(currentCountdown)
+                    val seconds = MyTimeConverter.getSecondsFromLong(currentCountdown)
+                    myViewModel.setPauseTime(minutes, seconds)
+
+                    val secondsString = if (seconds < 10) "0$seconds" else "$seconds"
+                    ProcessBT.sendMessageToMainBoard("timeGame%$minutes:$secondsString%red")
+                    ProcessBT.sendMessageToAllShotClock("time%$minutes:$secondsString%red")
+
+                    if (!pauseWarningPlayed && currentCountdown <= 15000L) {
+                        pauseWarningPlayed = true
+                        playSound(2)
+                    }
                 }
 
                 override fun onFinish() {
+                    activePauseMode = 0
                     myViewModel.setCurrentGameSection(++currentGameSection)
                     currentCountdown = gameSectionLength.toLong() * 1000
                     currentCountdownShotclock = (shotclockLongLength * 1000).toLong()
@@ -367,20 +524,39 @@ class GameControl() {
         }
 
         private fun createTimerTimeout(timeout: Long) {
+            activePauseMode = 2
+            pauseWarningPlayed = false
             timerPause = object : CountDownTimer(timeout, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
                     currentCountdown = millisUntilFinished
-                    myViewModel.setPauseTime(
-                        MyTimeConverter.getMinutesFromLong(currentCountdown),
-                        MyTimeConverter.getSecondsFromLong(currentCountdown)
-                    )
+                    val minutes = MyTimeConverter.getMinutesFromLong(currentCountdown)
+                    val seconds = MyTimeConverter.getSecondsFromLong(currentCountdown)
+                    myViewModel.setPauseTime(minutes, seconds)
+
+                    val secondsString = if (seconds < 10) "0$seconds" else "$seconds"
+                    ProcessBT.sendMessageToMainBoard("timeGame%$minutes:$secondsString%red")
+                    ProcessBT.sendMessageToAllShotClock("time%$minutes:$secondsString%red")
+
+                    if (!pauseWarningPlayed && currentCountdown <= 15000L) {
+                        pauseWarningPlayed = true
+                        playSound(2)
+                    }
                 }
 
                 override fun onFinish() {
+                    activePauseMode = 0
                     currentCountdown = savedCountdown
                     savedCountdown = 0
                     timerPause?.cancel()
                     createTimerCountdown()
+
+                    val mainMinutes = MyTimeConverter.getMinutesFromLong(currentCountdown)
+                    val mainSeconds = MyTimeConverter.getSecondsFromLong(currentCountdown)
+                    val mainSecondsString = if (mainSeconds < 10) "0$mainSeconds" else "$mainSeconds"
+                    val color = if (mainMinutes < 1) "red" else "default"
+                    ProcessBT.sendMessageToMainBoard("timeGame%$mainMinutes:$mainSecondsString%$color")
+                    ProcessBT.sendMessageToAllShotClock("time%$mainMinutes:$mainSecondsString%$color")
+
                     playSound(2)
                     myViewModel.timeControlAvailable(true)
                     myViewModel.setCurrentGameSection(currentGameSection)
@@ -399,10 +575,40 @@ class GameControl() {
         }
 
         private fun playSound(version: Int) {
-            val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+            ensureMaximumSoundVolume()
+            val soundGenerator = toneGenerator ?: ToneGenerator(AudioManager.STREAM_MUSIC, 100).also {
+                toneGenerator = it
+            }
             when (version) {
-                1 -> toneGenerator.startTone(ToneGenerator.TONE_CDMA_CALL_SIGNAL_ISDN_SP_PRI) // shotclock // TONE_CDMA_PIP 4
-                2 -> toneGenerator.startTone(ToneGenerator.TONE_SUP_PIP) // finish
+                1 -> soundGenerator.startTone(ToneGenerator.TONE_CDMA_CALL_SIGNAL_ISDN_SP_PRI, 700)
+                2 -> soundGenerator.startTone(ToneGenerator.TONE_SUP_PIP, 1500)
+            }
+        }
+
+        fun startManualHorn() {
+            ensureMaximumSoundVolume()
+            val soundGenerator = toneGenerator ?: ToneGenerator(AudioManager.STREAM_MUSIC, 100).also {
+                toneGenerator = it
+            }
+            soundGenerator.startTone(ToneGenerator.TONE_SUP_PIP, 30000)
+        }
+
+        fun stopManualHorn() {
+            toneGenerator?.stopTone()
+        }
+
+        private fun ensureMaximumSoundVolume() {
+            val audioManager = myViewModel.getApplication<Application>()
+                .getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+            val streamsToBoost = listOf(
+                AudioManager.STREAM_MUSIC,
+                AudioManager.STREAM_RING,
+                AudioManager.STREAM_NOTIFICATION,
+                AudioManager.STREAM_ALARM
+            )
+            streamsToBoost.forEach { streamType ->
+                val maxVolume = audioManager.getStreamMaxVolume(streamType)
+                audioManager.setStreamVolume(streamType, maxVolume, 0)
             }
         }
 
@@ -412,6 +618,14 @@ class GameControl() {
 
         fun getCurrentGameSection(): Int {
             return currentGameSection
+        }
+
+        fun isOvertimeEnabled(): Boolean {
+            return overtimeEnabled
+        }
+
+        fun isPsoEnabled(): Boolean {
+            return psoEnabled
         }
 
         fun getTeamBlueParticipantGuid(): String {

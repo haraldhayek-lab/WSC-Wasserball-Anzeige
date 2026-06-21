@@ -116,6 +116,91 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textview_timeout_amount" />
 
+        <TextView
+            android:id="@+id/textview_shotclock_long"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="angriffszeit lang sek."
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_shotclock_long"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_shotclock_long"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_min" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_shotclock_long"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_shotclock_long" />
+
+        <TextView
+            android:id="@+id/textview_shotclock_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="angriffszeit kurz sek."
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_shotclock_short"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_shotclock_short"
+            app:layout_constraintTop_toTopOf="@+id/textview_shotclock_long" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_shotclock_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_shotclock_long"
+            app:layout_constraintTop_toBottomOf="@+id/textview_shotclock_short" />
+
+        <TextView
+            android:id="@+id/textview_periods"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Anzahl Perioden"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_periods"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_periods"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_shotclock_long" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_periods"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_periods" />
+
+        <TextView
+            android:id="@+id/textview_ot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OT"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_ot"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_ot"
+            app:layout_constraintTop_toTopOf="@+id/textview_periods" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_ot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_periods"
+            app:layout_constraintTop_toBottomOf="@+id/textview_ot" />
+
+        <TextView
+            android:id="@+id/textview_pso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PSO"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_pso"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_pso"
+            app:layout_constraintTop_toTopOf="@+id/textview_periods" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_pso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_ot"
+            app:layout_constraintTop_toBottomOf="@+id/textview_pso" />
+
         <Button
             android:id="@+id/dialogBtnOK"
             android:layout_width="wrap_content"
@@ -124,6 +209,7 @@
             android:layout_marginEnd="10sp"
             android:text="Ok"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_periods"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
@@ -133,6 +219,7 @@
             android:layout_marginEnd="10sp"
             android:text="Cancel"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_pso"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

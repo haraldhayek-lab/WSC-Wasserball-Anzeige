@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">waterpolo 3000</string>
+    <string name="app_name">WSC-Anzeige</string>
 
     <string name="tab_1">Spiel</string>
     <string name="tab_2">Protokoll</string>
@@ -18,6 +18,7 @@
     <string name="B11">B11</string>
     <string name="B12">B12</string>
     <string name="B13">B13</string>
+    <string name="B14">B14</string>
 
     <string name="W1">W1</string>
     <string name="W2">W2</string>
@@ -32,10 +33,12 @@
     <string name="W11">W11</string>
     <string name="W12">W12</string>
     <string name="W13">W13</string>
+    <string name="W14">W14</string>
 
     <string name="zeroSimple">0</string>
     <string name="zeroDouble">00</string>
     <string name="start_stop">Start/Stop</string>
+    <string name="horn">Horn</string>
     <string name="shotclock_small">20</string>
     <string name="shotclock_big">30</string>
     <string name="exclusion">Ausschluss</string>
@@ -89,8 +92,11 @@
 
     <string name="noPairedDeviceFound">kein gepaartes Gerät gefunden</string>
     <string name="new_game">Neues Spiel</string>
-    <string name="main_time">Hauptzeit</string>
-    <string name="shotclock">Angriffszeit</string>
+    <string name="main_time">Hauptzeit ändern</string>
+    <string name="pause_shorten">Pause kürzen</string>
+    <string name="shotclock">Angriffszeit ändern</string>
+    <string name="game_settings">Spiel Einstellungen</string>
+    <string name="game_standards">Standards</string>
     <string name="brightness_all">Helligkeit alle</string>
     <string name="brightness">Helligkeit</string>
     <string name="load_game">Spiel laden</string>

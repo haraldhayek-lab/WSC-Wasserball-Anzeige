@@ -11,6 +11,12 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/item_horn"
+        android:icon="@drawable/ic_horn"
+        android:title="@string/horn"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/led_boards_menu"
         android:icon="@drawable/ic_no_shotclock_connected"
         android:title="sh"
@@ -181,6 +187,13 @@
                 app:showAsAction="always" />
 
             <item
+                android:id="@+id/item_edit_pause_time"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_timer"
+                android:title="@string/pause_shorten"
+                app:showAsAction="always" />
+
+            <item
                 android:id="@+id/item_edit_shotclock"
                 android:orderInCategory="100"
                 android:icon="@drawable/ic_timer"
@@ -191,7 +204,7 @@
                 android:id="@+id/item_game_settings"
                 android:orderInCategory="100"
                 android:icon="@drawable/ic_settings"
-                android:title="Spiel Einstellungen"
+                android:title="@string/game_settings"
                 app:showAsAction="always" />
 
         </menu>

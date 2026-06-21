@@ -39,6 +39,7 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     var db: AppDatabase = AppDatabase.getInstance(getApplication<Application>().applicationContext)
     var mainboardBrightness = 80
     var allBrightness = 80
+    val shotclockBrightness = MutableList(4) { 80 }
 
     // set the recyclerview for the gameEvents
     val gameEvents: LiveData<List<GameEventView>> = gameEventRepository.getGameEvents().asLiveData()
@@ -46,14 +47,14 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     val goals: LiveData<GameResult> = gameEventRepository.getGameResult(
         GOAL_TYPE_MINIMUM,
         GOAL_TYPE_MAXIMUM,
-        intArrayOf(1, 2, 3, 4)
+        intArrayOf(1, 2, 3, 4, 5, 6, 7)
     ).asLiveData()
 
     val timeoutForWhite: LiveData<TimeoutCount> = gameEventRepository.getTimeoutByTeam(WHITE).asLiveData()
     val timeoutForBlue: LiveData<TimeoutCount> = gameEventRepository.getTimeoutByTeam(BLUE).asLiveData()
 
-    val exclusionsBlue: Array<LiveData<ExclResult>> = Array(13) { i -> gameEventRepository.getExByPlayer(BLUE, i + 1).asLiveData() }
-    val exclusionsWhite: Array<LiveData<ExclResult>> = Array(13) { i -> gameEventRepository.getExByPlayer(WHITE, i + 1).asLiveData() }
+    val exclusionsBlue: Array<LiveData<ExclResult>> = Array(PLAYER_COUNT) { i -> gameEventRepository.getExByPlayer(BLUE, i + 1).asLiveData() }
+    val exclusionsWhite: Array<LiveData<ExclResult>> = Array(PLAYER_COUNT) { i -> gameEventRepository.getExByPlayer(WHITE, i + 1).asLiveData() }
 
     // Create a LiveData with a String
     val mainMinutes: MutableLiveData<String> by lazy { MutableLiveData<String>() }
@@ -61,6 +62,8 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     val mainSecondsSmall: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val shotclockSeconds: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val shotclockSecondsSmall: MutableLiveData<String> by lazy { MutableLiveData<String>() }
+    val shotclockBigButtonLabel: MutableLiveData<String> by lazy { MutableLiveData<String>() }
+    val shotclockSmallButtonLabel: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val currentGameSection: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val timeClickable: MutableLiveData<Boolean> by lazy { MutableLiveData<Boolean>() }
     val exclusionTime: MutableLiveData<String> by lazy { MutableLiveData<String>() }
@@ -73,29 +76,30 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
 
     init {
         GameControl.myViewModel = this
+        val cachedStandards = GameSettingsCache.load(getApplication<Application>().applicationContext)
+        GameControl.restoreGameStandards(cachedStandards)
         timeClickable.postValue(true)
 
         // main time
         Log.d(
             TAG,
             "min set init: ${
-                MyTimeConverter.getMinutesFromLong((DEFAULT_GAME_SECTION_LENGTH * 1000).toLong())
+                MyTimeConverter.getMinutesFromLong(GameControl.currentCountdown)
             }"
         )
         mainMinutes.postValue(
-            MyTimeConverter.getMinutesFromLong((DEFAULT_GAME_SECTION_LENGTH * 1000).toLong())
+            MyTimeConverter.getMinutesFromLong(GameControl.currentCountdown)
                 .toString()
         )
-        val seconds =
-            MyTimeConverter.getSecondsFromLong((DEFAULT_GAME_SECTION_LENGTH * 1000).toLong())
+        val seconds = MyTimeConverter.getSecondsFromLong(GameControl.currentCountdown)
         mainSeconds.postValue(if (seconds.toString().length < 2) "0$seconds" else "$seconds")
         mainSecondsSmall.postValue("0")
 
         // shotclock
-        val shSeconds =
-            MyTimeConverter.getSecondsFromLong((DEFAULT_SHOTCLOCK_BIG_LENGTH * 1000).toLong())
+        val shSeconds = MyTimeConverter.getSecondsFromLong(GameControl.currentCountdownShotclock)
         shotclockSeconds.postValue(if (shSeconds.toString().length < 2) "0$shSeconds" else "$shSeconds")
         shotclockSecondsSmall.postValue("0")
+        setShotclockButtonLabels(cachedStandards.shotclockLongLength, cachedStandards.shotclockShortLength)
 
         // other
         currentGameSection.postValue("1")
@@ -104,11 +108,32 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
 
     fun bluetoothConnectAll() {
         btSearchExecuted = true
-        connectMainBoard("(1/5): Haupt Tafel")
-        connectShotclock(1, "(2/5): shotclock 1")
-        connectShotclock(2, "(3/5): shotclock 2")
-        connectShotclock(3, "(4/5): shotclock 3")
-        connectShotclock(4, "(5/5): shotclock 4")
+        val btHandler = ProcessBT()
+        btHandler.searchAllDevice()
+
+        Thread(Runnable {
+            theConnectViewsVisibility.postValue(true)
+
+            connectTextview.postValue(
+                getApplication<Application>().resources.getString(R.string.wait_for_connection)
+                    .plus(" (1/5): Haupt Tafel")
+            )
+            if (!ProcessBT.mainBoardConnected) {
+                btHandler.connectMainBoard()
+            }
+
+            ProcessBT.shotClocksConnected.forEachIndexed { index, connected ->
+                connectTextview.postValue(
+                    getApplication<Application>().resources.getString(R.string.wait_for_connection)
+                        .plus(" (${index + 2}/5): shotclock ${index + 1}")
+                )
+                if (!connected) {
+                    btHandler.connectShotClock(index)
+                }
+            }
+
+            theConnectViewsVisibility.postValue(false)
+        }).start()
     }
 
     fun connectMainBoard(text: String) {
@@ -202,9 +227,29 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
         }
     }
 
+    fun setShotclockButtonLabels(longSeconds: Int, shortSeconds: Int) {
+        shotclockBigButtonLabel.postValue(longSeconds.toString())
+        shotclockSmallButtonLabel.postValue(shortSeconds.toString())
+    }
+
+    fun applyAndPersistGameStandards(standards: GameStandards) {
+        GameControl.applyGameStandards(
+            newNumberOfGameSection = standards.numberOfGameSection,
+            newOvertimeEnabled = standards.overtimeEnabled,
+            newPsoEnabled = standards.psoEnabled,
+            newGameSectionLength = standards.gameSectionLength,
+            newShotclockLongLength = standards.shotclockLongLength,
+            newShotclockShortLength = standards.shotclockShortLength,
+            newPauseLongLength = standards.pauseLongLength,
+            newPauseShortLength = standards.pauseShortLength,
+            newTimeoutLength = standards.timeoutLength,
+            newMaxTimeout = standards.maxTimeout
+        )
+        GameSettingsCache.save(getApplication<Application>().applicationContext, standards)
+    }
+
     fun timeControlAvailable(clickable: Boolean) {
-//        timeClickable.value = clickable
-        timeClickable.postValue(true)
+        timeClickable.postValue(clickable)
     }
 
     fun setCurrentGameSection(currentSection: Int) {
