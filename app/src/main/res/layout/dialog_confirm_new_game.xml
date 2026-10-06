@@ -34,6 +34,46 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textview_title" />
 
+        <TextView
+            android:id="@+id/textview_competition_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/competition_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_delete_current" />
+
+        <EditText
+            android:id="@+id/edittext_competition"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_competition_label" />
+
+        <TextView
+            android:id="@+id/textview_game_number_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/game_number_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edittext_competition" />
+
+        <EditText
+            android:id="@+id/edittext_game_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_game_number_label" />
+
         <Button
             android:id="@+id/dialogBtnYes"
             android:layout_width="wrap_content"
@@ -43,7 +83,7 @@
             android:layout_marginEnd="10sp"
             android:text="Ja"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textview_delete_current"
+            app:layout_constraintTop_toBottomOf="@+id/edittext_game_number"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <Button
@@ -54,7 +94,7 @@
             android:layout_marginEnd="10sp"
             android:text="Nein"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textview_delete_current"
+            app:layout_constraintTop_toBottomOf="@+id/edittext_game_number"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

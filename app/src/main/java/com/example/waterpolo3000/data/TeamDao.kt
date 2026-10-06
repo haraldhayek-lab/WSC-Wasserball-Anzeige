@@ -14,6 +14,9 @@ interface TeamDao {
     @Query("SELECT * FROM team WHERE guid = :guid")
     fun getTeam(guid: String): Flow<Team>
 
+    @Query("SELECT * FROM team WHERE guid IN (:guids)")
+    suspend fun getTeamsByGuidsDirect(guids: List<String>): List<Team>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(team: List<Team>)
 

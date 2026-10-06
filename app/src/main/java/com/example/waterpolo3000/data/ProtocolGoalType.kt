@@ -4,6 +4,7 @@ import androidx.room.Ignore
 import com.example.waterpolo3000.utilities.MyTimeConverter
 
 data class ProtocolGoalType (
+    val gameSection: Int,
     val guid       : String,
     var time       : Long,
     var numberWhite: String,

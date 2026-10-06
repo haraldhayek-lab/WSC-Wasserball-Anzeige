@@ -35,24 +35,45 @@ class ProcessBT() {
 //            false
 //        )
         val shotClocksConnected = Array(4) {false}.toMutableList()
+        private const val TEAM_SYNC_RETRY_ROUNDS = 2
+        private const val TEAM_SYNC_DELAY_MS = 120L
 
         const val REQUEST_ENABLE_BT = 1
 
-        fun sendMessageToMainBoard(text: String) {
-            if (mainBoardConnected) {
-                if (text.startsWith("player%")) {
-                    Log.d(TAG, "mainboard player command -> $text")
+        fun sendMessageToMainBoard(text: String): Boolean {
+            if (!mainBoardConnected) {
+                if (text.startsWith("player%") || text.startsWith("team%") || text.startsWith("teamW") || text.startsWith("teamB")) {
+                    Log.d(TAG, "mainboard command skipped, board not connected -> $text")
                 }
-                val textTemp = "$text%"
-                val check = btSocketMainBoard?.let { sendMessage(textTemp, it) }
-                if (!check!!) {
-                    if (text.startsWith("player%")) {
-                        Log.d(TAG, "mainboard player command failed -> $text")
-                    }
-                    mainBoardConnected = false
+                return false
+            }
+
+            val socket = btSocketMainBoard
+            if (socket == null) {
+                mainBoardConnected = false
+                Log.d(TAG, "mainboard socket missing -> $text")
+                return false
+            }
+
+            if (text.startsWith("player%") || text.startsWith("team%") || text.startsWith("teamW") || text.startsWith("teamB")) {
+                Log.d(TAG, "mainboard command -> $text")
+            }
+
+            val sent = sendMessage("$text%", socket)
+            if (!sent) {
+                mainBoardConnected = false
+                Log.d(TAG, "mainboard command failed -> $text")
+            }
+            return sent
+        }
+
+        fun sendTeamNamesToMainBoardReliable() {
+            val commands = GameControl.getTeamNameCommands()
+            repeat(TEAM_SYNC_RETRY_ROUNDS) {
+                commands.forEach { command ->
+                    sendMessageToMainBoard(command)
+                    Thread.sleep(TEAM_SYNC_DELAY_MS)
                 }
-            } else if (text.startsWith("player%")) {
-                Log.d(TAG, "mainboard player command skipped, board not connected -> $text")
             }
         }
 
@@ -201,6 +222,7 @@ class ProcessBT() {
         Thread.sleep(200)
         sendMessageToMainBoard("gameSection%${GameControl.getCurrentGameSection()}")
         Thread.sleep(200)
+        sendTeamNamesToMainBoardReliable()
         sendMessageToMainBoard(GameControl.getDisplayedResultCommand())
         GameControl.getPlayerExclusionCommands().forEach { command ->
             Thread.sleep(80)

@@ -14,6 +14,9 @@ interface ParticipantDao {
     @Query("SELECT * FROM participant WHERE game = :guid")
     fun getAllParticipantFromGame(guid: String): Flow<List<Participant>>
 
+    @Query("SELECT * FROM participant WHERE game = :guid")
+    suspend fun getAllParticipantFromGameDirect(guid: String): List<Participant>
+
     @Query("SELECT * FROM participant WHERE guid = :guid")
     fun getParticipant(guid: String): Participant
 

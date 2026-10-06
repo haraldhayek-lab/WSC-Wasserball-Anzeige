@@ -18,11 +18,14 @@ var DEFAULT_SHOTCLOCK_BIG_LENGTH   = 30
 var DEFAULT_SHOTCLOCK_SMALL_LENGTH = 20
 var DEFAULT_PAUSE_LONG_LENGTH      = 180
 var DEFAULT_PAUSE_SHORT_LENGTH     = 120
+var DEFAULT_PAUSE_OT_PSO_LENGTH    = 120
 var DEFAULT_TIMEOUT_LENGTH         = 60
 var DEFAULT_MAX_TIMEOUT            = 2
+var DEFAULT_TIME_IS_BRUTTO         = false
 const val PLAYER_COUNT             = 14
 const val BLUE  = "blue"
 const val WHITE = "white"
+var GAME_SNAPSHOT_FILENAME_PREFIX = "wsc_game_"
 
 // goal and exclusion types
 const val GOAL_TYPE_MINIMUM      = 100

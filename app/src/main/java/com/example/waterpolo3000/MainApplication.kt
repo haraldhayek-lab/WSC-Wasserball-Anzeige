@@ -1,7 +1,7 @@
 package com.example.waterpolo3000
 
 import android.app.Application
-import androidx.databinding.library.BuildConfig
+import com.example.waterpolo3000.BuildConfig
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 

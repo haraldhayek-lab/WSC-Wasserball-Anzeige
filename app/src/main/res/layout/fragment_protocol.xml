@@ -6,6 +6,7 @@
     <data>
 
         <import type="androidx.core.content.ContextCompat" />
+        <import type="android.view.View" />
 
         <variable
             name="clickListener"
@@ -52,6 +53,30 @@
             type="String" />
 
         <variable
+            name="continuationLabel"
+            type="String" />
+
+        <variable
+            name="continuationGoalsWhite"
+            type="String" />
+
+        <variable
+            name="continuationGoalsBlue"
+            type="String" />
+
+        <variable
+            name="continuationLabel2"
+            type="String" />
+
+        <variable
+            name="continuationGoalsWhite2"
+            type="String" />
+
+        <variable
+            name="continuationGoalsBlue2"
+            type="String" />
+
+        <variable
             name="edit"
             type="Boolean" />
     </data>
@@ -66,18 +91,81 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_white_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.01" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_white_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.26" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_blue_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.27" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_blue_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.52" />
+
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_team_end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.50" />
+            app:layout_constraintGuide_percent="0.52" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_result_end"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.62" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.53" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_label_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.57" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_white_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.59" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_delimiter_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintGuide_percent="0.60" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_result_blue_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.62" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_foul_end"
@@ -101,74 +189,85 @@
             android:minEms="16"
             android:text="team white"
             android:textAlignment="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/teamBlueName"
+            app:layout_constraintStart_toStartOf="@+id/guideline_white_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_white_end"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/teamWhiteNr"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
             android:text="Nr."
             android:textAlignment="center"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toStartOf="@+id/guideline_white_start"
+            app:layout_constraintEnd_toStartOf="@+id/teamWhitePlayerName"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName" />
 
         <TextView
             android:id="@+id/teamWhitePlayerName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:maxEms="11"
-            android:minEms="11"
+            android:maxEms="14"
+            android:minEms="14"
             android:text="Name"
+            android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="16"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteNr"
+            app:layout_constraintEnd_toStartOf="@+id/teamWhiteP1"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
         <TextView
             android:id="@+id/teamWhiteP1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P1"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamWhitePlayerName"
+            app:layout_constraintEnd_toStartOf="@+id/teamWhiteP2"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
         <TextView
             android:id="@+id/teamWhiteP2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P2"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP1"
+            app:layout_constraintEnd_toStartOf="@+id/teamWhiteP3"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
         <TextView
             android:id="@+id/teamWhiteP3"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P3"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP2"
+            app:layout_constraintEnd_toStartOf="@+id/teamWhiteGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
         <TextView
             android:id="@+id/teamWhiteGoal"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:paddingStart="4dp"
@@ -177,7 +276,9 @@
             android:minEms="1"
             android:text="T"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamWhiteP3"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_white_end"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteName"/>
 
 
@@ -189,74 +290,85 @@
             android:minEms="16"
             android:text="team blue"
             android:textAlignment="center"
-            app:layout_constraintStart_toEndOf="@+id/teamWhiteName"
-            app:layout_constraintEnd_toStartOf="@+id/guideline_team_end"
+            app:layout_constraintStart_toStartOf="@+id/guideline_blue_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_blue_end"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/teamBlueNr"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="2"
             android:minEms="2"
             android:text="Nr."
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@+id/teamBlueName"
+            app:layout_constraintEnd_toStartOf="@+id/teamBluePlayerName"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName" />
 
         <TextView
             android:id="@+id/teamBluePlayerName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:maxEms="11"
-            android:minEms="11"
+            android:maxEms="14"
+            android:minEms="14"
             android:text="Name"
+            android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="16"
             app:layout_constraintStart_toEndOf="@+id/teamBlueNr"
+            app:layout_constraintEnd_toStartOf="@+id/teamBlueP1"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
         <TextView
             android:id="@+id/teamBlueP1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P1"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamBluePlayerName"
+            app:layout_constraintEnd_toStartOf="@+id/teamBlueP2"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
         <TextView
             android:id="@+id/teamBlueP2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P2"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP1"
+            app:layout_constraintEnd_toStartOf="@+id/teamBlueP3"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
         <TextView
             android:id="@+id/teamBlueP3"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             android:maxEms="1"
             android:minEms="1"
             android:text="P3"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP2"
+            app:layout_constraintEnd_toStartOf="@+id/teamBlueGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
         <TextView
             android:id="@+id/teamBlueGoal"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:paddingStart="4dp"
@@ -265,7 +377,9 @@
             android:minEms="1"
             android:text="T"
             android:textAlignment="center"
+            app:layout_constraintHorizontal_weight="1.5"
             app:layout_constraintStart_toEndOf="@+id/teamBlueP3"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_blue_end"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueName"/>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -279,7 +393,7 @@
             app:spanCount="1"
             tools:listitem="@layout/list_item_protocol_team"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline_white_start"
             app:layout_constraintEnd_toEndOf="@+id/teamWhiteGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
@@ -295,7 +409,7 @@
             app:spanCount="1"
             tools:listitem="@layout/list_item_protocol_edit_team"
             app:isGone="@{edit}"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline_white_start"
             app:layout_constraintEnd_toEndOf="@+id/teamWhiteGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamWhiteNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
@@ -348,7 +462,7 @@
             app:spanCount="1"
             app:isGone="@{!edit}"
             tools:listitem="@layout/list_item_protocol_team"
-            app:layout_constraintStart_toStartOf="@+id/teamBlueNr"
+            app:layout_constraintStart_toStartOf="@+id/guideline_blue_start"
             app:layout_constraintEnd_toEndOf="@+id/teamBlueGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
@@ -364,7 +478,7 @@
             app:spanCount="1"
             tools:listitem="@layout/list_item_protocol_edit_team"
             app:isGone="@{edit}"
-            app:layout_constraintStart_toStartOf="@+id/teamBlueNr"
+            app:layout_constraintStart_toStartOf="@+id/guideline_blue_start"
             app:layout_constraintEnd_toEndOf="@+id/teamBlueGoal"
             app:layout_constraintTop_toBottomOf="@+id/teamBlueNr"
             app:layout_constraintBottom_toTopOf="@+id/btn_edit"/>
@@ -375,59 +489,67 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:lines="1"
-            android:text="VIERTEL-ERGEBNISSE"
-            app:layout_constraintStart_toStartOf="@+id/guideline_team_end"
+            android:text="ABSCHNITTE"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
             app:layout_constraintEnd_toStartOf="@+id/guideline_result_end"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/first_quarter_result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
             android:maxEms="3"
             android:minEms="3"
             android:text="I"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toStartOf="@+id/result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
             app:layout_constraintTop_toBottomOf="@+id/result_title"/>
 
         <TextView
             android:id="@+id/second_quarter_result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="3"
             android:minEms="3"
             android:text="II"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toStartOf="@+id/result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
             app:layout_constraintTop_toBottomOf="@+id/first_quarter_result_title"/>
 
         <TextView
             android:id="@+id/third_quarter_result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="3"
             android:minEms="3"
             android:text="III"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toStartOf="@+id/result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
             app:layout_constraintTop_toBottomOf="@+id/second_quarter_result_title"/>
 
         <TextView
             android:id="@+id/fourth_quarter_result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:maxEms="3"
             android:minEms="3"
             android:text="IV"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toStartOf="@+id/result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
             app:layout_constraintTop_toBottomOf="@+id/third_quarter_result_title"/>
 
         <TextView
             android:id="@+id/first_quarter_result_white"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:layout_marginTop="20sp"
@@ -437,23 +559,25 @@
             android:text="@{goalsWhiteFirst}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/first_quarter_result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
             app:layout_constraintTop_toBottomOf="@+id/result_title"/>
 
         <TextView
             android:id="@+id/delimiter_1"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
             android:text=":"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/first_quarter_result_white"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
             app:layout_constraintTop_toBottomOf="@+id/result_title"/>
 
         <TextView
             android:id="@+id/first_quarter_result_blue"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
             android:background="@color/blue"
@@ -464,12 +588,13 @@
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/delimiter_1"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
             app:layout_constraintTop_toBottomOf="@+id/result_title"/>
 
         <TextView
             android:id="@+id/second_quarter_result_white"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:hint="0"
@@ -478,21 +603,24 @@
             android:text="@{goalsWhiteSecond}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/second_quarter_result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
             app:layout_constraintTop_toBottomOf="@+id/first_quarter_result_white"/>
 
         <TextView
             android:id="@+id/delimiter_2"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text=":"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/second_quarter_result_white"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
             app:layout_constraintTop_toBottomOf="@+id/delimiter_1"/>
 
         <TextView
             android:id="@+id/second_quarter_result_blue"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/blue"
             android:hint="0"
@@ -502,12 +630,13 @@
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/delimiter_2"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
             app:layout_constraintTop_toBottomOf="@+id/first_quarter_result_blue"/>
 
         <TextView
             android:id="@+id/third_quarter_result_white"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:hint="0"
@@ -516,21 +645,24 @@
             android:text="@{goalsWhiteThird}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/third_quarter_result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
             app:layout_constraintTop_toBottomOf="@+id/second_quarter_result_white"/>
 
         <TextView
             android:id="@+id/delimiter_3"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text=":"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/third_quarter_result_white"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
             app:layout_constraintTop_toBottomOf="@+id/delimiter_2"/>
 
         <TextView
             android:id="@+id/third_quarter_result_blue"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/blue"
             android:hint="0"
@@ -540,12 +672,13 @@
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/delimiter_3"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
             app:layout_constraintTop_toBottomOf="@+id/second_quarter_result_blue"/>
 
         <TextView
             android:id="@+id/fourth_quarter_result_white"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:hint="0"
@@ -554,21 +687,24 @@
             android:text="@{goalsWhiteFourth}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/fourth_quarter_result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
             app:layout_constraintTop_toBottomOf="@+id/third_quarter_result_white"/>
 
         <TextView
             android:id="@+id/delimiter_4"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text=":"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/fourth_quarter_result_white"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
             app:layout_constraintTop_toBottomOf="@+id/delimiter_3"/>
 
         <TextView
             android:id="@+id/fourth_quarter_result_blue"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/blue"
             android:hint="0"
@@ -578,51 +714,186 @@
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/delimiter_4"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
             app:layout_constraintTop_toBottomOf="@+id/third_quarter_result_blue"/>
+
+        <LinearLayout
+            android:id="@+id/continuation_results_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintTop_toBottomOf="@+id/fourth_quarter_result_title"/>
 
         <TextView
             android:id="@+id/final_result_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
             android:maxEms="3"
             android:minEms="3"
             android:text="ENDE"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toStartOf="@+id/fourth_quarter_result_title"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintTop_toBottomOf="@+id/continuation_results_container"/>
+
+        <TextView
+            android:id="@+id/continuation_result_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:maxEms="6"
+            android:minEms="6"
+            android:text="@{continuationLabel}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
             app:layout_constraintTop_toBottomOf="@+id/fourth_quarter_result_title"/>
 
         <TextView
-            android:id="@+id/final_result_white"
-            android:layout_width="wrap_content"
+            android:id="@+id/continuation_result_white"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:layout_marginTop="20sp"
             android:hint="0"
             android:maxEms="1"
             android:minEms="1"
-            android:text="@{goalsWhite}"
+            android:text="@{continuationGoalsWhite}"
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/final_result_title"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
             app:layout_constraintTop_toBottomOf="@+id/fourth_quarter_result_white"/>
 
         <TextView
-            android:id="@+id/delimiter_5"
-            android:layout_width="wrap_content"
+            android:id="@+id/delimiter_6"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
             android:text=":"
+            android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
-            app:layout_constraintStart_toEndOf="@+id/final_result_white"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
             app:layout_constraintTop_toBottomOf="@+id/delimiter_4"/>
 
         <TextView
-            android:id="@+id/final_result_blue"
-            android:layout_width="wrap_content"
+            android:id="@+id/continuation_result_blue"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
+            android:background="@color/blue"
+            android:hint="0"
+            android:maxEms="1"
+            android:minEms="1"
+            android:text="@{continuationGoalsBlue}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
+            app:layout_constraintTop_toBottomOf="@+id/fourth_quarter_result_blue"/>
+
+        <TextView
+            android:id="@+id/continuation_result_title_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxEms="6"
+            android:minEms="6"
+            android:text="@{continuationLabel2}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_start"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintTop_toBottomOf="@+id/continuation_result_title"/>
+
+        <TextView
+            android:id="@+id/continuation_result_white_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:hint="0"
+            android:maxEms="1"
+            android:minEms="1"
+            android:text="@{continuationGoalsWhite2}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintTop_toBottomOf="@+id/continuation_result_white"/>
+
+        <TextView
+            android:id="@+id/delimiter_7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintTop_toBottomOf="@+id/delimiter_6"/>
+
+        <TextView
+            android:id="@+id/continuation_result_blue_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/blue"
+            android:hint="0"
+            android:maxEms="1"
+            android:minEms="1"
+            android:text="@{continuationGoalsBlue2}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
+            app:layout_constraintTop_toBottomOf="@+id/continuation_result_blue"/>
+
+        <TextView
+            android:id="@+id/final_result_white"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:hint="0"
+            android:maxEms="1"
+            android:minEms="1"
+            android:text="@{goalsWhite}"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_label_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintTop_toTopOf="@+id/final_result_title"/>
+
+        <TextView
+            android:id="@+id/delimiter_5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textAlignment="center"
+            android:textSize="@dimen/resultTextSize"
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_white_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintTop_toTopOf="@+id/final_result_title"/>
+
+        <TextView
+            android:id="@+id/final_result_blue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="@color/blue"
             android:hint="0"
             android:maxEms="1"
@@ -631,8 +902,9 @@
             android:textAlignment="center"
             android:textSize="@dimen/resultTextSize"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@+id/delimiter_5"
-            app:layout_constraintTop_toBottomOf="@+id/fourth_quarter_result_blue"/>
+            app:layout_constraintStart_toStartOf="@+id/guideline_result_delimiter_end"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_result_blue_end"
+            app:layout_constraintTop_toTopOf="@+id/final_result_title"/>
 
         <TextView
             android:id="@+id/personal_foul_title"
@@ -640,7 +912,7 @@
             android:layout_height="wrap_content"
             android:maxEms="11"
             android:minEms="11"
-            android:text="Persönliche Fehler"
+            android:text="@string/personal_foul"
             android:textAlignment="center"
             app:layout_constraintStart_toStartOf="@+id/guideline_result_end"
             app:layout_constraintEnd_toStartOf="@+id/guideline_foul_end"
@@ -726,7 +998,7 @@
             android:layout_height="wrap_content"
             android:maxEms="4"
             android:minEms="4"
-            android:text="Torfolge"
+            android:text="@string/goals_order"
             android:textAlignment="center"
             app:layout_constraintStart_toStartOf="@+id/guideline_goals_order_start"
             app:layout_constraintEnd_toEndOf="parent"
@@ -818,7 +1090,29 @@
             app:layout_constraintStart_toStartOf="@+id/goals_time_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/goals_time_title"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toTopOf="@+id/special_notes_title"/>
+
+        <TextView
+            android:id="@+id/special_notes_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/special_notes_title"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/guideline_foul_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/special_notes_value" />
+
+        <TextView
+            android:id="@+id/special_notes_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="4"
+            android:ellipsize="end"
+            android:text=""
+            app:layout_constraintStart_toStartOf="@+id/guideline_foul_end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

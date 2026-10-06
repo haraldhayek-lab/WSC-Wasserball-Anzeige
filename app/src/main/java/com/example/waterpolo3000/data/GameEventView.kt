@@ -1,6 +1,7 @@
 package com.example.waterpolo3000.data
 
 import androidx.room.Ignore
+import com.example.waterpolo3000.game.GameControl
 import com.example.waterpolo3000.utilities.MyTimeConverter
 
 data class GameEventView(
@@ -20,6 +21,9 @@ data class GameEventView(
     var seconds = MyTimeConverter.getSecondsFromLong(time)
     @Ignore
     var secondsSmall = MyTimeConverter.getSecondsSmallFromLong(time)
+
+    @Ignore
+    var sectionLabel = gameSection.toIntOrNull()?.let { GameControl.getSectionLabel(it) } ?: gameSection
 
     @Ignore
     var timeString =  "$minutes:"+if(seconds>9) "$seconds.$secondsSmall" else "0$seconds.$secondsSmall"

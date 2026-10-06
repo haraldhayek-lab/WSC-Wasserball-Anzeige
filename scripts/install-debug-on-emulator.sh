@@ -20,4 +20,4 @@ done
 "$adb_bin" shell settings put system accelerometer_rotation 0
 "$adb_bin" shell wm user-rotation lock 1
 
-exec "$project_dir/gradlew-java16" installDebug
+exec "$project_dir/gradlew-java17" installDebug

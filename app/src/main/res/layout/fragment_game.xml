@@ -1320,9 +1320,27 @@
             android:maxLines="2"
             app:backgroundTint="@color/green_2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/exclusion_B_9"
+            app:layout_constraintEnd_toStartOf="@id/btn_time_StartStopShotclock"
             app:layout_constraintTop_toBottomOf="@+id/btn_event_goalPenalty_104"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <Button
+            android:id="@+id/btn_time_StartStopShotclock"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="2sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:clickable="@{timeClickable}"
+            android:onClick="@{clickListener}"
+            android:text="@string/start_stop_attacks"
+            android:maxLines="2"
+            android:visibility="gone"
+            app:backgroundTint="@color/green_2"
+            app:layout_constraintStart_toEndOf="@id/btn_time_StartStop"
+            app:layout_constraintEnd_toStartOf="@id/btn_time_ShotclockSmall"
+            app:layout_constraintTop_toTopOf="@+id/btn_time_StartStop"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
             android:id="@+id/btn_time_ShotclockSmall"
@@ -1335,7 +1353,7 @@
             android:onClick="@{clickListener}"
             android:text="@string/shotclock_small"
             app:backgroundTint="@color/green_2"
-            app:layout_constraintStart_toEndOf="@id/btn_time_StartStop"
+            app:layout_constraintStart_toEndOf="@id/btn_time_StartStopShotclock"
             app:layout_constraintEnd_toStartOf="@id/btn_time_ShotclockBig"
             app:layout_constraintTop_toTopOf="@+id/btn_time_StartStop"
             app:layout_constraintBottom_toBottomOf="parent"/>

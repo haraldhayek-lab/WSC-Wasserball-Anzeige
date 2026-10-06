@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="@{gameEvent.gameSection}"
+            android:text="@{gameEvent.sectionLabel}"
             android:textStyle="bold"
             tools:text="gamesection"
             android:textColor="@color/black"

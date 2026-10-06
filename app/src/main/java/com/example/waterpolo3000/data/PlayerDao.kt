@@ -14,6 +14,9 @@ interface PlayerDao {
     @Query("SELECT * FROM player WHERE guid = :guid")
     fun getPlayer(guid: String): Flow<Player>
 
+    @Query("SELECT * FROM player WHERE guid IN (:guids)")
+    suspend fun getPlayersByGuidsDirect(guids: List<String>): List<Player>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(player: Array<Player>)
 

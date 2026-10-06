@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textview_end_game_notes_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/end_game_notes_title"
+        android:textColor="#111111"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edittext_end_game_notes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#F3F3F3"
+        android:hint="@string/end_game_notes_hint"
+        android:inputType="textMultiLine"
+        android:textColor="#111111"
+        android:textColorHint="#666666"
+        android:minLines="3"
+        android:gravity="start|top"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_end_game_notes_title" />
+
+    <Button
+        android:id="@+id/dialogBtnEndGame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#1E1E1E"
+        android:text="@string/end_game"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_end_game_notes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/dialogBtnCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#5A5A5A"
+        android:text="Abbrechen"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@+id/edittext_end_game_notes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

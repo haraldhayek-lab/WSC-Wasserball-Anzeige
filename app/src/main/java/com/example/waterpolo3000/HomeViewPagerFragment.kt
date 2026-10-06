@@ -25,6 +25,7 @@ class HomeViewPagerFragment : Fragment() {
         val viewPager = binding.viewPager
 
         viewPager.adapter = WaterpoloPagerAdapter(this)
+        viewPager.offscreenPageLimit = 2
 
         // Set the icon and text for each tab
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

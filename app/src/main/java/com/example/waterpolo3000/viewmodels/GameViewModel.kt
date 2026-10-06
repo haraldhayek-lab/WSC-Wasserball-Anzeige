@@ -8,10 +8,13 @@ import com.example.waterpolo3000.R
 import com.example.waterpolo3000.data.*
 import com.example.waterpolo3000.game.GameControl
 import com.example.waterpolo3000.utilities.*
+import com.google.gson.Gson
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.internal.wait
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -21,6 +24,35 @@ import javax.inject.Inject
 // viewModel for game fragment
 @HiltViewModel
 class GameViewModel @Inject internal constructor(gameEventRepository: GameEventRepository, application: Application) : AndroidViewModel(application) {
+
+    data class ContinuationSectionDeleteResult(
+        val removedLabel: String? = null,
+        val blockedLabel: String? = null,
+        val blockedLogLineCount: Int = 0
+    )
+
+    private data class SnapshotRuntimeState(
+        val currentSection: Int,
+        val currentCountdown: Long,
+        val currentShotclockCountdown: Long,
+        val gameStarted: Boolean,
+        val continuationMode: String,
+        val gameFinished: Boolean,
+        val displayedGoalsWhite: String,
+        val displayedGoalsBlue: String
+    )
+
+    private data class GameSnapshot(
+        val version: Int,
+        val game: Game,
+        val teams: List<Team>,
+        val players: List<Player>,
+        val participants: List<Participant>,
+        val gameEvents: List<GameEvent>,
+        val standards: GameStandards,
+        val meta: GameMeta,
+        val runtime: SnapshotRuntimeState
+    )
 
     private val gERepository = gameEventRepository
     private var database = Firebase.database.reference
@@ -65,10 +97,12 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     val shotclockBigButtonLabel: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val shotclockSmallButtonLabel: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val currentGameSection: MutableLiveData<String> by lazy { MutableLiveData<String>() }
+    val continuationChoiceRequest: MutableLiveData<Int> by lazy { MutableLiveData<Int>() }
     val timeClickable: MutableLiveData<Boolean> by lazy { MutableLiveData<Boolean>() }
     val exclusionTime: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val connectTextview: MutableLiveData<String> by lazy { MutableLiveData<String>() }
     val theConnectViewsVisibility: MutableLiveData<Boolean> by lazy { MutableLiveData<Boolean>() }
+    val gameEventEditRequest: MutableLiveData<GameEventView?> by lazy { MutableLiveData<GameEventView?>(null) }
 
 //    fun setExclusionTime(player: String, value: Int){
 //        Log.d(TAG, "ExclusionTime for $player: $value")
@@ -77,6 +111,8 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     init {
         GameControl.myViewModel = this
         val cachedStandards = GameSettingsCache.load(getApplication<Application>().applicationContext)
+        val cachedGameMeta = GameMetaCache.load(getApplication<Application>().applicationContext)
+        GameControl.setGameMeta(cachedGameMeta.competition, cachedGameMeta.gameNumber)
         GameControl.restoreGameStandards(cachedStandards)
         timeClickable.postValue(true)
 
@@ -103,6 +139,7 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
 
         // other
         currentGameSection.postValue("1")
+        continuationChoiceRequest.postValue(0)
         GameControl.init()
     }
 
@@ -195,10 +232,19 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     fun processTime(time: String) {
         when (time) {
             "StartStop" -> GameControl.startStopCounter()
+            "StartStopShotclock" -> GameControl.startStopShotclock()
             "ShotclockSmall" -> GameControl.newShotclockSmall()
             "ShotclockBig" -> GameControl.newShotclockBig()
             "timeout" -> GameControl.startTimeout()
         }
+    }
+
+    fun pauseClocksForTimeoutSelection() {
+        GameControl.pauseClocksForTimeoutSelection()
+    }
+
+    fun cancelTimeoutSelectionResumeIfNeeded(): Boolean {
+        return GameControl.cancelTimeoutSelectionResumeIfNeeded()
     }
 
     fun setPauseTime(minutes: Int, seconds: Int) {
@@ -242,10 +288,243 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
             newShotclockShortLength = standards.shotclockShortLength,
             newPauseLongLength = standards.pauseLongLength,
             newPauseShortLength = standards.pauseShortLength,
+            newPauseOtPsoLength = standards.pauseOtPsoLength,
             newTimeoutLength = standards.timeoutLength,
-            newMaxTimeout = standards.maxTimeout
+            newMaxTimeout = standards.maxTimeout,
+            newTimeIsBrutto = standards.timeIsBrutto
         )
         GameSettingsCache.save(getApplication<Application>().applicationContext, standards)
+    }
+
+    fun createGameSnapshotFileName(): String {
+        val competition = if (GameControl.competitionName.isBlank()) "bewerb" else GameControl.competitionName
+        val gameNumber = if (GameControl.gameNumberLabel.isBlank()) "spiel" else GameControl.gameNumberLabel
+        val timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now())
+        val normalizedCompetition = competition.replace("[^A-Za-z0-9_-]".toRegex(), "_")
+        val normalizedGameNumber = gameNumber.replace("[^A-Za-z0-9_-]".toRegex(), "_")
+        return "${GAME_SNAPSHOT_FILENAME_PREFIX}${normalizedCompetition}_${normalizedGameNumber}_$timestamp.json"
+    }
+
+    suspend fun exportCurrentGameSnapshotJson(): Result<String> = withContext(Dispatchers.IO) {
+        runCatching {
+            val gameGuid = GameControl.currentGameGuid
+            val game = db.gameDao().getGameDirect(gameGuid) ?: GameControl.game
+
+            val participants = db.participantDao()
+                .getAllParticipantFromGameDirect(gameGuid)
+                .filter { !it.deleted }
+
+            val teamGuids = participants.map { it.team }.distinct()
+            val teams = if (teamGuids.isEmpty()) {
+                listOf(GameControl.teamWhite, GameControl.teamBlue)
+            } else {
+                db.teamDao().getTeamsByGuidsDirect(teamGuids).filter { !it.deleted }
+            }
+
+            val playerGuids = participants.map { it.player }.distinct()
+            val players = if (playerGuids.isEmpty()) {
+                GameControl.playersListAll.toList()
+            } else {
+                db.playerDao().getPlayersByGuidsDirect(playerGuids).filter { !it.deleted }
+            }
+
+            val events = db.gameEventDao()
+                .getAllByGameGuidDirect(gameGuid)
+                .filter { !it.deleted }
+
+            val context = getApplication<Application>().applicationContext
+            val standards = GameSettingsCache.load(context)
+            val meta = GameMetaCache.load(context)
+
+            val runtime = SnapshotRuntimeState(
+                currentSection = GameControl.getCurrentGameSection(),
+                currentCountdown = GameControl.currentCountdown,
+                currentShotclockCountdown = GameControl.currentCountdownShotclock,
+                gameStarted = GameControl.gameStarted,
+                continuationMode = GameControl.getContinuationModeLabel(),
+                gameFinished = GameControl.isGameFinished(),
+                displayedGoalsWhite = GameControl.getDisplayedGoalsWhite(),
+                displayedGoalsBlue = GameControl.getDisplayedGoalsBlue()
+            )
+
+            val snapshot = GameSnapshot(
+                version = 1,
+                game = game,
+                teams = teams,
+                players = players,
+                participants = participants,
+                gameEvents = events,
+                standards = standards,
+                meta = meta,
+                runtime = runtime
+            )
+
+            Gson().toJson(snapshot)
+        }
+    }
+
+    suspend fun importGameSnapshotJson(
+        json: String,
+        overrideCompetition: String? = null,
+        overrideGameNumber: String? = null
+    ): Result<String> = withContext(Dispatchers.IO) {
+        runCatching {
+            val snapshot = Gson().fromJson(json, GameSnapshot::class.java)
+                ?: throw IllegalArgumentException("Ungueltige Spieldatei")
+
+            if (snapshot.participants.isEmpty()) {
+                throw IllegalArgumentException("Spieldatei enthaelt keine Teilnehmer")
+            }
+
+            val now = System.currentTimeMillis()
+            val newGameGuid = UUID.randomUUID().toString()
+            val newGame = Game(newGameGuid).apply {
+                competition = snapshot.game.competition
+                competitionType = snapshot.game.competitionType
+                gameStart = snapshot.game.gameStart
+                gameEnd = snapshot.game.gameEnd
+                gameLocation = snapshot.game.gameLocation
+                settings = snapshot.game.settings
+                deleted = false
+                created = now
+                lastUpdated = 0
+            }
+
+            val sourceTeams = snapshot.teams.associateBy { it.guid }
+            val sourcePlayers = snapshot.players.associateBy { it.guid }
+            val teamMap = mutableMapOf<String, Team>()
+            val playerMap = mutableMapOf<String, Player>()
+
+            val rebuiltTeams = mutableListOf<Team>()
+            val rebuiltPlayers = mutableListOf<Player>()
+
+            fun ensureTeam(oldGuid: String, cap: String): Team {
+                teamMap[oldGuid]?.let { return it }
+                val source = sourceTeams[oldGuid]
+                val fallbackName = if (cap.equals(WHITE, ignoreCase = true)) "WHITE" else "BLUE"
+                val createdTeam = Team(UUID.randomUUID().toString()).apply {
+                    teamName = source?.teamName ?: fallbackName
+                    teamLocation = source?.teamLocation ?: ""
+                    deleted = false
+                    created = now
+                    lastUpdated = 0
+                }
+                teamMap[oldGuid] = createdTeam
+                rebuiltTeams.add(createdTeam)
+                return createdTeam
+            }
+
+            fun ensurePlayer(oldGuid: String): Player {
+                playerMap[oldGuid]?.let { return it }
+                val source = sourcePlayers[oldGuid]
+                val createdPlayer = Player(UUID.randomUUID().toString()).apply {
+                    playerFirstName = source?.playerFirstName ?: "Vorname"
+                    playerLastName = source?.playerLastName ?: "Nachname"
+                    playerLicense = source?.playerLicense ?: 0
+                    deleted = false
+                    created = now
+                    lastUpdated = 0
+                }
+                playerMap[oldGuid] = createdPlayer
+                rebuiltPlayers.add(createdPlayer)
+                return createdPlayer
+            }
+
+            val rebuiltParticipants = mutableListOf<Participant>()
+            val participantGuidMap = mutableMapOf<String, String>()
+
+            snapshot.participants.forEach { sourceParticipant ->
+                val resolvedTeam = ensureTeam(sourceParticipant.team, sourceParticipant.cap)
+                val resolvedPlayer = ensurePlayer(sourceParticipant.player)
+                val newParticipantGuid = UUID.randomUUID().toString()
+                participantGuidMap[sourceParticipant.guid] = newParticipantGuid
+
+                rebuiltParticipants.add(
+                    Participant(
+                        guid = newParticipantGuid,
+                        game = newGameGuid,
+                        player = resolvedPlayer.guid,
+                        cap = sourceParticipant.cap,
+                        number = sourceParticipant.number,
+                        team = resolvedTeam.guid,
+                        function = sourceParticipant.function
+                    ).apply {
+                        deleted = false
+                        created = now
+                        lastUpdated = 0
+                    }
+                )
+            }
+
+            val rebuiltEvents = snapshot.gameEvents.map { sourceEvent ->
+                GameEvent(
+                    guid = UUID.randomUUID().toString(),
+                    game = newGameGuid,
+                    gameSection = sourceEvent.gameSection,
+                    time = sourceEvent.time,
+                    participant = participantGuidMap[sourceEvent.participant] ?: sourceEvent.participant,
+                    gameEventType = sourceEvent.gameEventType
+                ).apply {
+                    deleted = false
+                    created = now
+                    lastUpdated = 0
+                }
+            }
+
+            db.gameDao().insert(newGame)
+            if (rebuiltTeams.isNotEmpty()) {
+                db.teamDao().insertAll(rebuiltTeams)
+            }
+            if (rebuiltPlayers.isNotEmpty()) {
+                db.playerDao().insertAll(rebuiltPlayers.toTypedArray())
+            }
+            if (rebuiltParticipants.isNotEmpty()) {
+                db.participantDao().insertAll(rebuiltParticipants)
+            }
+            if (rebuiltEvents.isNotEmpty()) {
+                db.gameEventDao().insertAll(rebuiltEvents)
+            }
+
+            val context = getApplication<Application>().applicationContext
+            val importedStandards = snapshot.standards
+            val normalizedStandards = importedStandards.copy(
+                pauseOtPsoLength = if (importedStandards.pauseOtPsoLength > 0) {
+                    importedStandards.pauseOtPsoLength
+                } else {
+                    importedStandards.pauseShortLength
+                },
+                timeIsBrutto = importedStandards.timeIsBrutto
+            )
+            val effectiveMeta = GameMeta(
+                competition = overrideCompetition?.trim().takeUnless { it.isNullOrBlank() }
+                    ?: snapshot.meta.competition,
+                gameNumber = overrideGameNumber?.trim().takeUnless { it.isNullOrBlank() }
+                    ?: snapshot.meta.gameNumber
+            )
+            GameSettingsCache.save(context, normalizedStandards)
+            GameMetaCache.save(context, effectiveMeta)
+            GameControl.setGameMeta(effectiveMeta.competition, effectiveMeta.gameNumber)
+            GameControl.restoreGameStandards(normalizedStandards)
+            newGame.competition = effectiveMeta.competition
+
+            GameControl.loadImportedGameState(
+                importedGame = newGame,
+                importedTeams = rebuiltTeams,
+                importedPlayers = rebuiltPlayers,
+                importedParticipants = rebuiltParticipants,
+                importedCurrentSection = snapshot.runtime.currentSection,
+                importedMainCountdown = snapshot.runtime.currentCountdown,
+                importedShotclockCountdown = snapshot.runtime.currentShotclockCountdown,
+                importedGameStarted = snapshot.runtime.gameStarted,
+                importedContinuationMode = snapshot.runtime.continuationMode,
+                importedGameFinished = snapshot.runtime.gameFinished,
+                importedGoalsWhite = snapshot.runtime.displayedGoalsWhite,
+                importedGoalsBlue = snapshot.runtime.displayedGoalsBlue
+            )
+
+            val displayGameNumber = if (effectiveMeta.gameNumber.isBlank()) "-" else effectiveMeta.gameNumber
+            "Spiel geladen (Spiel-Nr.: $displayGameNumber)"
+        }
     }
 
     fun timeControlAvailable(clickable: Boolean) {
@@ -253,8 +532,42 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     }
 
     fun setCurrentGameSection(currentSection: Int) {
-//        currentGameSection.value = currentSection.toString()
-        currentGameSection.postValue(currentSection.toString())
+        currentGameSection.postValue(GameControl.getSectionLabel(currentSection))
+    }
+
+    fun requestContinuationChoice() {
+        val nextValue = (continuationChoiceRequest.value ?: 0) + 1
+        continuationChoiceRequest.postValue(nextValue)
+    }
+
+    fun applyContinuationChoice(mode: String) {
+        GameControl.applyContinuationChoice(mode)
+    }
+
+    suspend fun deleteCurrentContinuationSectionIfEmpty(): ContinuationSectionDeleteResult {
+        val section = GameControl.getCurrentGameSection()
+        if (section <= GameControl.numberOfGameSection) {
+            return ContinuationSectionDeleteResult()
+        }
+
+        val label = GameControl.getSectionLabel(section)
+        val normalizedLabel = label.trim().uppercase(Locale.ROOT)
+        val isContinuation = normalizedLabel == "PSO" || normalizedLabel.startsWith("OT-")
+        if (!isContinuation) {
+            return ContinuationSectionDeleteResult()
+        }
+
+        val logLineCount = gERepository.getVisibleLogLineCountBySection(section)
+        if (logLineCount > 0) {
+            return ContinuationSectionDeleteResult(
+                blockedLabel = label,
+                blockedLogLineCount = logLineCount
+            )
+        }
+
+        return ContinuationSectionDeleteResult(
+            removedLabel = GameControl.clearCurrentContinuationSectionLabel()
+        )
     }
 
     // store in db
@@ -380,13 +693,14 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     }
 
     private fun createLiveGameKey(): String {
-        val competition = "bl" // create competition in GameControl
+        val competition = if (GameControl.competitionName.isBlank()) "bl" else GameControl.competitionName
+        val gameNumber = if (GameControl.gameNumberLabel.isBlank()) "-" else GameControl.gameNumberLabel
         val dateTime = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd")
         val formatted = dateTime.format(formatter)
         val startTime = "12_00" // create in GameControl start time of game
 
-        return "${competition}_${formatted}_${startTime}_${GameControl.teamWhite.teamName}_${GameControl.teamBlue.teamName}_${GameControl.currentGameGuid}"
+        return "${competition}_${gameNumber}_${formatted}_${startTime}_${GameControl.teamWhite.teamName}_${GameControl.teamBlue.teamName}_${GameControl.currentGameGuid}"
     }
 
     private fun storeGameEventInternal(
@@ -434,6 +748,30 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
         }
     }
 
+    fun deleteGameEvent(gameEvent: GameEventView) {
+        if (GameControl.isGameFinished()) {
+            GameControl.reopenEndedGameForCorrection()
+        }
+        if (gameEvent.gameEventType == TIMEOUT) {
+            GameControl.cancelActiveTimeoutTimer()
+        }
+        if (GameControl.isTrackedExclusionTypeForCountdown(gameEvent.gameEventType)) {
+            GameControl.clearExclusionCountdownForPlayer(
+                gameEvent.cap,
+                gameEvent.number.toIntOrNull()
+            )
+        }
+        deleteGameEvent(gameEvent.guid)
+    }
+
+    fun requestGameEventEdit(gameEvent: GameEventView) {
+        gameEventEditRequest.postValue(gameEvent)
+    }
+
+    fun clearGameEventEditRequest() {
+        gameEventEditRequest.postValue(null)
+    }
+
     fun initAll(
         game: Game,
         teamList: List<Team>,
@@ -461,6 +799,49 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
                     if (gameEvent.number == "") 0 else gameEvent.number.toInt()
                 ),
                 gameEvent.gameEventType
+            )
+            db.gameEventDao().insert(newGameEvent)
+            db.gameEventDao().updateToDelete(gameEvent.guid, System.currentTimeMillis())
+        }
+    }
+
+    fun updateGameEvent(
+        gameEvent: GameEventView,
+        newTime: Long,
+        participantGuid: String,
+        eventType: Int,
+        oldCap: String,
+        oldNumber: Int?,
+        oldSection: Int,
+        oldTime: Long,
+        newCap: String,
+        newNumber: Int?,
+        newSection: Int,
+    ) {
+        if (GameControl.isGameFinished()) {
+            GameControl.reopenEndedGameForCorrection()
+        }
+        GameControl.updateExclusionTrackingAfterGameEventEdit(
+            oldEventType = gameEvent.gameEventType,
+            oldCap = oldCap,
+            oldNumber = oldNumber,
+            oldSection = oldSection,
+            oldTime = oldTime,
+            newEventType = eventType,
+            newCap = newCap,
+            newNumber = newNumber,
+            newSection = newSection,
+            newTime = newTime
+        )
+
+        viewModelScope.launch {
+            val newGameEvent = GameEvent(
+                UUID.randomUUID().toString(),
+                GameControl.game.guid,
+                gameEvent.gameSection.toInt(),
+                newTime,
+                participantGuid,
+                eventType,
             )
             db.gameEventDao().insert(newGameEvent)
             db.gameEventDao().updateToDelete(gameEvent.guid, System.currentTimeMillis())

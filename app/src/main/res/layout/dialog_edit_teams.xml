@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textview_team_white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/team_white_input_label" />
+
+    <EditText
+        android:id="@+id/edittext_team_white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:inputType="textCapWords"
+        android:maxLines="1" />
+
+    <Button
+        android:id="@+id/dialogBtnImportWhite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/team_import_button_white" />
+
+    <TextView
+        android:id="@+id/textview_import_status_white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="@string/team_import_status_idle" />
+
+    <TextView
+        android:id="@+id/textview_team_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/team_blue_input_label" />
+
+    <EditText
+        android:id="@+id/edittext_team_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:inputType="textCapWords"
+        android:maxLines="1" />
+
+    <Button
+        android:id="@+id/dialogBtnImportBlue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/team_import_button_blue" />
+
+    <TextView
+        android:id="@+id/textview_import_status_blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="@string/team_import_status_idle" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/dialogBtnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/dialogBtnOK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Ok" />
+    </LinearLayout>
+
+</LinearLayout>

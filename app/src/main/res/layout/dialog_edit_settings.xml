@@ -6,6 +6,11 @@
         android:id="@+id/myLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp"
         android:layout_marginBottom="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -14,9 +19,15 @@
 
         <TextView
             android:id="@+id/textview_min"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="min."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_min"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_min"
             app:layout_constraintTop_toTopOf="parent" />
@@ -25,15 +36,23 @@
             android:id="@+id/numberpicker_min"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/numberpicker_sec"
             app:layout_constraintTop_toBottomOf="@+id/textview_min" />
 
         <TextView
             android:id="@+id/textview_sec"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="sek."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_sec"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_sec"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -42,15 +61,24 @@
             android:id="@+id/numberpicker_sec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_min"
             app:layout_constraintEnd_toStartOf="@+id/numberpicker_break_big"
-            app:layout_constraintTop_toBottomOf="@+id/textview_sec" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_sec"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
 
         <TextView
             android:id="@+id/textview_break_big"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="pause gross min."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_break_big"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_break_big"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -60,15 +88,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_sec"
             app:layout_constraintEnd_toStartOf="@+id/numberpicker_break_small"
-            app:layout_constraintTop_toBottomOf="@+id/textview_break_big" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_break_big"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
 
         <TextView
             android:id="@+id/textview_break_small"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="pause klein min."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_break_small"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_break_small"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -77,15 +114,50 @@
             android:id="@+id/numberpicker_break_small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_break_big"
+            app:layout_constraintEnd_toStartOf="@+id/numberpicker_break_ot_pso"
+            app:layout_constraintTop_toBottomOf="@+id/textview_break_small"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
+
+        <TextView
+            android:id="@+id/textview_break_ot_pso"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
+            android:text="pause OT/PSO min."
+            android:textColor="#111111"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_break_ot_pso"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_break_ot_pso"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <NumberPicker
+            android:id="@+id/numberpicker_break_ot_pso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_break_small"
             app:layout_constraintEnd_toStartOf="@+id/numberpicker_timeout_length"
-            app:layout_constraintTop_toBottomOf="@+id/textview_break_small" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_break_ot_pso"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
 
         <TextView
             android:id="@+id/textview_timeout_length"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="timeout min."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_timeout_length"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_timeout_length"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -94,16 +166,24 @@
             android:id="@+id/numberpicker_timeout_length"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
-            app:layout_constraintStart_toEndOf="@+id/numberpicker_break_small"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_break_ot_pso"
             app:layout_constraintEnd_toStartOf="@+id/numberpicker_timeout_amount"
-            app:layout_constraintTop_toBottomOf="@+id/textview_timeout_length" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_timeout_length"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
 
         <TextView
             android:id="@+id/textview_timeout_amount"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="timeout Anzahl"
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_timeout_amount"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_timeout_amount"
             app:layout_constraintTop_toTopOf="parent"/>
@@ -112,16 +192,25 @@
             android:id="@+id/numberpicker_timeout_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_timeout_length"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textview_timeout_amount" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_timeout_amount"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_min" />
 
         <TextView
             android:id="@+id/textview_shotclock_long"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="angriffszeit lang sek."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_shotclock_long"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_shotclock_long"
             app:layout_constraintTop_toBottomOf="@+id/numberpicker_min" />
@@ -130,14 +219,22 @@
             android:id="@+id/numberpicker_shotclock_long"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textview_shotclock_long" />
 
         <TextView
             android:id="@+id/textview_shotclock_short"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="angriffszeit kurz sek."
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_shotclock_short"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_shotclock_short"
             app:layout_constraintTop_toTopOf="@+id/textview_shotclock_long" />
@@ -146,32 +243,50 @@
             android:id="@+id/numberpicker_shotclock_short"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="12dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_shotclock_long"
-            app:layout_constraintTop_toBottomOf="@+id/textview_shotclock_short" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_shotclock_short"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_shotclock_long" />
 
         <TextView
             android:id="@+id/textview_periods"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Anzahl Perioden"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
+            android:text="Anzahl Abschnitte"
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_periods"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_periods"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_shotclock_long" />
+            app:layout_constraintTop_toTopOf="@+id/textview_shotclock_long" />
 
         <NumberPicker
             android:id="@+id/numberpicker_periods"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textview_periods" />
+            android:layout_marginStart="44dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_shotclock_short"
+            app:layout_constraintTop_toBottomOf="@+id/textview_periods"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_shotclock_long" />
 
         <TextView
             android:id="@+id/textview_ot"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="OT"
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_ot"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_ot"
             app:layout_constraintTop_toTopOf="@+id/textview_periods" />
@@ -180,26 +295,66 @@
             android:id="@+id/numberpicker_ot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="44dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_periods"
-            app:layout_constraintTop_toBottomOf="@+id/textview_ot" />
+            app:layout_constraintTop_toBottomOf="@+id/textview_ot"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_shotclock_long" />
 
         <TextView
             android:id="@+id/textview_pso"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
             android:text="PSO"
+            android:textColor="#111111"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/numberpicker_pso"
             app:layout_constraintEnd_toEndOf="@+id/numberpicker_pso"
+            app:layout_constraintTop_toTopOf="@+id/textview_periods" />
+
+        <TextView
+            android:id="@+id/textview_time_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            android:minHeight="40dp"
+            android:singleLine="false"
+            android:text="Zeit-Art"
+            android:textColor="#111111"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/numberpicker_time_type"
+            app:layout_constraintEnd_toEndOf="@+id/numberpicker_time_type"
             app:layout_constraintTop_toTopOf="@+id/textview_periods" />
 
         <NumberPicker
             android:id="@+id/numberpicker_pso"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="12dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
             app:layout_constraintStart_toEndOf="@+id/numberpicker_ot"
-            app:layout_constraintTop_toBottomOf="@+id/textview_pso" />
+            app:layout_constraintEnd_toStartOf="@+id/numberpicker_time_type"
+            app:layout_constraintTop_toBottomOf="@+id/textview_pso"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_shotclock_long" />
+
+        <NumberPicker
+            android:id="@+id/numberpicker_time_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="#F3F3F3"
+            android:scaleY="0.85"
+            app:layout_constraintStart_toEndOf="@+id/numberpicker_pso"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textview_time_type"
+            app:layout_constraintBottom_toBottomOf="@+id/numberpicker_shotclock_long" />
 
         <Button
             android:id="@+id/dialogBtnOK"
@@ -207,19 +362,23 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"
             android:layout_marginEnd="10sp"
-            android:text="Ok"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_periods"
+            android:backgroundTint="#1E1E1E"
+            android:text="Okay"
+            android:textColor="#FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_shotclock_long"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <Button
             android:id="@+id/dialogBtnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10sp"
-            android:text="Cancel"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numberpicker_pso"
+            android:layout_marginEnd="14dp"
+            android:backgroundTint="#5A5A5A"
+            android:text="Abbrechen"
+            android:textColor="#FFFFFF"
+            app:layout_constraintEnd_toStartOf="@+id/dialogBtnOK"
+            app:layout_constraintTop_toBottomOf="@+id/numberpicker_shotclock_long"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

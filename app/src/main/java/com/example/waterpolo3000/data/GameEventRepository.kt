@@ -19,7 +19,7 @@ class GameEventRepository @Inject constructor(private val gameEventDao: GameEven
     fun getAll() = gameEventDao.getAll()
 
     fun getProtocolForTeam(cap: String, exclTypeMin: Int, exclTypeMax: Int, goalTypeMin: Int, goalTypeMax: Int) =
-        gameEventDao.getProtocolTeam(cap, exclTypeMin, exclTypeMax, goalTypeMin, goalTypeMax)
+        gameEventDao.getProtocolTeamWithPlayerId(cap, exclTypeMin, exclTypeMax, goalTypeMin, goalTypeMax)
 
     fun getProtocolByGameEventType(typeMin: Int, typeMax: Int) = gameEventDao.getProtocolOrderedByGameEventType(typeMin, typeMax)
 
@@ -34,5 +34,11 @@ class GameEventRepository @Inject constructor(private val gameEventDao: GameEven
     fun getPlayerNames(cap: String) = gameEventDao.getNamesPlayer(cap)
 
     fun getTimeoutByTeam(cap: String) = gameEventDao.getTimeout(cap)
+
+    suspend fun getVisibleLogLineCountBySection(gameSection: Int) =
+        gameEventDao.getVisibleLogLineCountBySection(gameSection)
+
+    suspend fun deleteGameEventsBySection(gameSection: Int, lastUpdated: Long) =
+        gameEventDao.updateToDeleteBySection(gameSection, lastUpdated)
 
 }

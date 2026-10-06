@@ -14,6 +14,9 @@ interface GameDao {
     @Query("SELECT * FROM game WHERE guid = :guid")
     fun getGame(guid: String): Flow<Game>
 
+    @Query("SELECT * FROM game WHERE guid = :guid LIMIT 1")
+    suspend fun getGameDirect(guid: String): Game?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(game: List<Game>)
 
