@@ -145,7 +145,7 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
 
     fun bluetoothConnectAll() {
         btSearchExecuted = true
-        val btHandler = ProcessBT()
+        val btHandler = ProcessBT(getApplication<Application>().applicationContext)
         btHandler.searchAllDevice()
 
         Thread(Runnable {
@@ -174,7 +174,7 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     }
 
     fun connectMainBoard(text: String) {
-        val btHandler = ProcessBT()
+        val btHandler = ProcessBT(getApplication<Application>().applicationContext)
         btHandler.searchAllDevice()
 
         if (!ProcessBT.mainBoardConnected) {
@@ -188,7 +188,7 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
     }
 
     fun connectShotclock(myIndex: Int, text: String) {
-        val btHandler = ProcessBT()
+        val btHandler = ProcessBT(getApplication<Application>().applicationContext)
         btHandler.searchAllDevice()
 
         ProcessBT.shotClocksConnected.forEachIndexed { index, b ->

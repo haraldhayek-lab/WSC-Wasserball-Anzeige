@@ -378,9 +378,13 @@ class GameControl() {
             return sectionsCompleted * gameSectionLength * 1000L + elapsedInSection
         }
 
+        private fun formatTeamNameForMainBoard(name: String): String {
+            return name.replace("%", " ").trim().take(5)
+        }
+
         fun getTeamNameCommands(): List<String> {
-            val whiteName = teamWhite.teamName.replace("%", " ").trim()
-            val blueName = teamBlue.teamName.replace("%", " ").trim()
+            val whiteName = formatTeamNameForMainBoard(teamWhite.teamName)
+            val blueName = formatTeamNameForMainBoard(teamBlue.teamName)
             return listOf(
                 "team%$WHITE%$whiteName",
                 "team%$BLUE%$blueName",
@@ -1299,6 +1303,7 @@ class GameControl() {
             myViewModel.setShotclockButtonLabels(shotclockLongLength, shotclockShortLength)
             setGameTimeEdit()
             setShotclockEdit()
+            ProcessBT.sendTeamNamesToMainBoardReliable()
             myViewModel.timeControlAvailable(true)
             return true
         }

@@ -9,9 +9,11 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.InsetDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.MotionEvent
@@ -25,9 +27,12 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.text.isDigitsOnly
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.allViews
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
@@ -200,6 +205,8 @@ class GameFragment : Fragment() {
                 getString(R.string.load_game_failed)
             }
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            applyTimeControlModeUi()
+            updateTimeControlButtonsState()
             updateGameMetaHeader()
             refreshSelectablePlayerButtonsFromRoster()
             scheduleDelayedRosterRefresh()
@@ -296,11 +303,6 @@ class GameFragment : Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -347,6 +349,7 @@ class GameFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMenuProvider()
         resetPlayerAvailabilityCaches()
         viewModel.btSearchExecuted = true
         applyTimeControlModeUi()
@@ -661,13 +664,30 @@ class GameFragment : Fragment() {
     }
 
     private fun myVibrate() {
-        val vibrator = context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
+        val appContext = context ?: return
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            appContext.getSystemService(VibratorManager::class.java)?.defaultVibrator
+        } else {
+            ContextCompat.getSystemService(appContext, Vibrator::class.java)
+        }
+        vibrator?.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    private fun setupMenuProvider() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                createOptionsMenu(menu, menuInflater)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return handleOptionsItemSelected(menuItem)
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    private fun createOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_game, menu)
-        super.onCreateOptionsMenu(menu, inflater)
         LedBoardMenuItem = menu.findItem(R.id.led_boards_menu)
         overflowMenuItem = menu.findItem(R.id.overflowMenu)
         mainBoardMenuItem = menu.findItem(R.id.mainBoard_item)
@@ -695,7 +715,7 @@ class GameFragment : Fragment() {
         setOptionsMenu()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun handleOptionsItemSelected(item: MenuItem): Boolean {
         return (when (item.itemId) {
             R.id.item_new_game -> {
                 showNewGameConfirmDialog()
@@ -893,8 +913,7 @@ class GameFragment : Fragment() {
                 viewModel.connectShotclock(4, ": Shotclock 4")
                 true
             }
-            else ->
-                super.onOptionsItemSelected(item)
+            else -> false
         })
     }
 

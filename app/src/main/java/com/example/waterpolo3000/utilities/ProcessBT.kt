@@ -2,9 +2,11 @@ package com.example.waterpolo3000.utilities
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.ContentValues
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
@@ -16,7 +18,7 @@ import java.io.IOException
 import java.util.*
 
 //class ProcessBT(val myActivity: FragmentActivity?) {
-class ProcessBT() {
+class ProcessBT(private val appContext: Context? = null) {
     companion object {
         lateinit var gameViewModel: GameViewModel
         var btSocketMainBoard: BluetoothSocket? = null
@@ -160,7 +162,8 @@ class ProcessBT() {
         null
     )
 
-    val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    val bluetoothAdapter: BluetoothAdapter? =
+        appContext?.getSystemService(BluetoothManager::class.java)?.adapter
 
     fun connectMainBoard(): Boolean {
         if (bluetoothAdapter != null) {
