@@ -15,6 +15,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
 import android.view.*
@@ -134,6 +135,8 @@ class GameFragment : Fragment() {
     private val rosterEnabledBlue = mutableMapOf<Int, Boolean>()
     private val exclusionBlockedWhite = mutableMapOf<Int, Boolean>()
     private val exclusionBlockedBlue = mutableMapOf<Int, Boolean>()
+    private var timeoutCountWhite = 0
+    private var timeoutCountBlue = 0
     private var delayedRosterRefreshJob: Job? = null
     private var startupRosterRetryJob: Job? = null
 
@@ -438,6 +441,12 @@ class GameFragment : Fragment() {
             "time" -> {
                 tempCurrentCountdown = GameControl.currentCountdown
                 if (btnId.split("_")[2] == "timeout") {
+                    if (DEFAULT_MAX_TIMEOUT <= 0) {
+                        playDoubleWarningSignal()
+                        Toast.makeText(requireContext(), "Keine Timeouts in Einstellungen erlaubt", Toast.LENGTH_LONG).show()
+                        return
+                    }
+
                     viewModel.pauseClocksForTimeoutSelection()
                     val dialog = Dialog(requireContext())
                     dialog.setContentView(R.layout.dialog_timeout)
@@ -445,26 +454,35 @@ class GameFragment : Fragment() {
                     val dialogButtonWhite = dialog.findViewById<Button>(R.id.btn_white)
                     val dialogButtonCancel = dialog.findViewById<Button>(R.id.btn_cancel)
                     val dialogButtonBlue = dialog.findViewById<Button>(R.id.btn_blue)
+                    var timeoutSelectionHandled = false
 
                     dialogButtonWhite.setOnClickListener {
-                        val timeoutWhite = binding.timeoutWhiteValue?.toIntOrNull() ?: 0
+                        if (timeoutSelectionHandled) {
+                            return@setOnClickListener
+                        }
+                        val timeoutWhite = timeoutCountWhite
                         if (timeoutWhite >= DEFAULT_MAX_TIMEOUT) {
                             viewModel.cancelTimeoutSelectionResumeIfNeeded()
                             showTimeoutLimitWarningDialog("WHITE", GameControl.teamWhite.teamName)
                             return@setOnClickListener
                         }
+                        timeoutSelectionHandled = true
                         viewModel.processTime("timeout")
                         viewModel.storeTimeout(WHITE, tempCurrentCountdown)
                         tempCurrentCountdown = 0
                         dialog.dismiss()
                     }
                     dialogButtonBlue.setOnClickListener {
-                        val timeoutBlue = binding.timeoutBlueValue?.toIntOrNull() ?: 0
+                        if (timeoutSelectionHandled) {
+                            return@setOnClickListener
+                        }
+                        val timeoutBlue = timeoutCountBlue
                         if (timeoutBlue >= DEFAULT_MAX_TIMEOUT) {
                             viewModel.cancelTimeoutSelectionResumeIfNeeded()
                             showTimeoutLimitWarningDialog("BLUE", GameControl.teamBlue.teamName)
                             return@setOnClickListener
                         }
+                        timeoutSelectionHandled = true
                         viewModel.processTime("timeout")
                         viewModel.storeTimeout(BLUE, tempCurrentCountdown)
                         tempCurrentCountdown = 0
@@ -558,13 +576,23 @@ class GameFragment : Fragment() {
 
         val dialogButtonOk = dialog.findViewById<Button>(R.id.dialogBtnOK)
         val dialogButtonCancel = dialog.findViewById<Button>(R.id.dialogBtnCancel)
+        val textPlayer = dialog.findViewById<TextView>(R.id.text_player)
+        val textEventType = dialog.findViewById<TextView>(R.id.text_event_type)
         val numPickerMinutes = dialog.findViewById<NumberPicker>(R.id.numberpicker_minutes)
         val numPickerSeconds = dialog.findViewById<NumberPicker>(R.id.numberpicker_seconds)
         val numPickerSecondsSmall = dialog.findViewById<NumberPicker>(R.id.numberpicker_secondsSmall)
         val numPickerPlayer = dialog.findViewById<NumberPicker>(R.id.numberpicker_player)
         val numPickerEventType = dialog.findViewById<NumberPicker>(R.id.numberpicker_event_type)
+        val isTimeoutEvent = state.eventType == TIMEOUT
 
-        val playerOptions = buildEditPlayerOptions()
+        val playerOptions = if (isTimeoutEvent) {
+            listOf(
+                EditPlayerOption("WEISS", WHITE, 0),
+                EditPlayerOption("BLAU", BLUE, 0)
+            )
+        } else {
+            buildEditPlayerOptions()
+        }
         val eventOptions = buildEditEventOptions()
 
         numPickerMinutes.maxValue = maxOf((GameControl.gameSectionLength / 60), state.minutes, 20)
@@ -582,7 +610,11 @@ class GameFragment : Fragment() {
         numPickerPlayer.maxValue = playerOptions.lastIndex
         numPickerPlayer.displayedValues = playerOptions.map { it.label }.toTypedArray()
         numPickerPlayer.value = playerOptions.indexOfFirst {
-            it.cap.equals(state.cap, ignoreCase = true) && it.number == state.number
+            if (isTimeoutEvent) {
+                it.cap.equals(state.cap, ignoreCase = true)
+            } else {
+                it.cap.equals(state.cap, ignoreCase = true) && it.number == state.number
+            }
         }.takeIf { it >= 0 } ?: playerOptions.indexOfFirst {
             it.cap.equals(state.cap, ignoreCase = true) && it.number == null
         }.takeIf { it >= 0 } ?: 0
@@ -593,10 +625,41 @@ class GameFragment : Fragment() {
         numPickerEventType.displayedValues = eventOptions.map { it.label }.toTypedArray()
         numPickerEventType.value = eventOptions.indexOfFirst { it.type == state.eventType }.takeIf { it >= 0 } ?: 0
 
+        if (isTimeoutEvent) {
+            textPlayer.text = "Farbe"
+            textEventType.visibility = View.GONE
+            numPickerEventType.visibility = View.GONE
+        } else {
+            textPlayer.text = "Spieler"
+            textEventType.visibility = View.VISIBLE
+            numPickerEventType.visibility = View.VISIBLE
+        }
+
         dialogButtonOk.setOnClickListener {
             val selectedPlayer = playerOptions[numPickerPlayer.value]
-            val selectedEvent = eventOptions[numPickerEventType.value]
-            val participantGuid = GameControl.getParticipantByCapNumber(selectedPlayer.cap, selectedPlayer.number ?: 0)
+            val selectedEventType = if (isTimeoutEvent) TIMEOUT else eventOptions[numPickerEventType.value].type
+
+            if (isTimeoutEvent && !selectedPlayer.cap.equals(state.cap, ignoreCase = true)) {
+                val targetTimeoutCount =
+                    if (selectedPlayer.cap.equals(WHITE, ignoreCase = true)) timeoutCountWhite else timeoutCountBlue
+                if (DEFAULT_MAX_TIMEOUT > 0 && targetTimeoutCount >= DEFAULT_MAX_TIMEOUT) {
+                    showTimeoutLimitWarningDialog(
+                        if (selectedPlayer.cap.equals(WHITE, ignoreCase = true)) "WHITE" else "BLUE",
+                        if (selectedPlayer.cap.equals(WHITE, ignoreCase = true)) GameControl.teamWhite.teamName else GameControl.teamBlue.teamName
+                    )
+                    return@setOnClickListener
+                }
+            }
+
+            val participantGuid = if (isTimeoutEvent) {
+                if (selectedPlayer.cap.equals(WHITE, ignoreCase = true)) {
+                    GameControl.getTeamWhiteParticipantGuid()
+                } else {
+                    GameControl.getTeamBlueParticipantGuid()
+                }
+            } else {
+                GameControl.getParticipantByCapNumber(selectedPlayer.cap, selectedPlayer.number ?: 0)
+            }
 
             val newTime =
                 (numPickerMinutes.value * 60 * 1000L) +
@@ -609,15 +672,20 @@ class GameFragment : Fragment() {
                 gameEvent = state.event,
                 newTime = newTime,
                 participantGuid = participantGuid,
-                eventType = selectedEvent.type,
+                eventType = selectedEventType,
                 oldCap = state.cap,
                 oldNumber = state.number,
                 oldSection = oldSection,
                 oldTime = state.event.time,
                 newCap = selectedPlayer.cap,
-                newNumber = selectedPlayer.number,
+                newNumber = if (isTimeoutEvent) null else selectedPlayer.number,
                 newSection = oldSection
             )
+
+            if (isTimeoutEvent) {
+                applyTimeoutEditLocally(oldCap = state.cap, newCap = selectedPlayer.cap)
+            }
+
             pendingGameEventEdit = null
             dialog.dismiss()
         }
@@ -838,6 +906,17 @@ class GameFragment : Fragment() {
             }
             R.id.item_edit_teams -> {
                 showTeamSettingsDialog()
+                true
+            }
+            R.id.item_volume_settings -> {
+                val opened = runCatching {
+                    startActivity(Intent(Settings.ACTION_SOUND_SETTINGS))
+                }.isSuccess
+                if (!opened) {
+                    runCatching {
+                        startActivity(Intent(Settings.ACTION_SETTINGS))
+                    }
+                }
                 true
             }
             R.id.mainboard_brigthness_item -> {
@@ -2024,13 +2103,41 @@ class GameFragment : Fragment() {
     }
 
     private fun showTimeoutLimitWarningDialog(color: String, teamName: String) {
-        GameControl.playWarningSignal()
+        playDoubleWarningSignal()
         val normalizedTeamName = if (teamName.isBlank()) "-" else teamName
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.warning_title))
             .setMessage(getString(R.string.timeout_limit_reached_message, color, normalizedTeamName))
             .setPositiveButton(R.string.close_text, null)
             .show()
+    }
+
+    private fun playDoubleWarningSignal() {
+        GameControl.playWarningSignal()
+        binding.root.postDelayed({
+            GameControl.playWarningSignal()
+        }, 240L)
+    }
+
+    private fun applyTimeoutEditLocally(oldCap: String, newCap: String) {
+        if (oldCap.equals(newCap, ignoreCase = true)) {
+            return
+        }
+
+        if (oldCap.equals(WHITE, ignoreCase = true)) {
+            timeoutCountWhite = (timeoutCountWhite - 1).coerceAtLeast(0)
+        } else if (oldCap.equals(BLUE, ignoreCase = true)) {
+            timeoutCountBlue = (timeoutCountBlue - 1).coerceAtLeast(0)
+        }
+
+        if (newCap.equals(WHITE, ignoreCase = true)) {
+            timeoutCountWhite += 1
+        } else if (newCap.equals(BLUE, ignoreCase = true)) {
+            timeoutCountBlue += 1
+        }
+
+        binding.timeoutWhiteValue = timeoutCountWhite.toString()
+        binding.timeoutBlueValue = timeoutCountBlue.toString()
     }
 
     private fun subscribeUi(adapter: GameEventAdapter, binding: FragmentGameBinding) {
@@ -2048,9 +2155,11 @@ class GameFragment : Fragment() {
 
         viewModel.timeoutForWhite.observe(viewLifecycleOwner) { result ->
             binding.timeoutWhiteValue = result.count
+            timeoutCountWhite = result.count.toIntOrNull() ?: 0
         }
         viewModel.timeoutForBlue.observe(viewLifecycleOwner) { result ->
             binding.timeoutBlueValue = result.count
+            timeoutCountBlue = result.count.toIntOrNull() ?: 0
         }
 
         val tempListTxtViewBlue = mutableMapOf<Int, TextView>()

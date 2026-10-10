@@ -235,6 +235,13 @@
                 android:title="@string/teams"
                 app:showAsAction="always" />
 
+            <item
+                android:id="@+id/item_volume_settings"
+                android:orderInCategory="100"
+                android:icon="@android:drawable/ic_lock_silent_mode_off"
+                android:title="Lautstaerke"
+                app:showAsAction="always" />
+
         </menu>
     </item>
 </menu>
