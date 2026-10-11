@@ -203,6 +203,23 @@ class GameViewModel @Inject internal constructor(gameEventRepository: GameEventR
         }
     }
 
+    fun disconnectMainBoard() {
+        ProcessBT.disconnectMainBoard()
+    }
+
+    fun disconnectShotclock(myIndex: Int) {
+        ProcessBT.shotClocksConnected.forEachIndexed { index, connected ->
+            if (connected && ((myIndex == 0) || ((myIndex - 1) == index))) {
+                ProcessBT.disconnectShotClock(index)
+            }
+        }
+    }
+
+    fun disconnectAllBoards() {
+        disconnectMainBoard()
+        disconnectShotclock(0)
+    }
+
     fun setAll() {
         Log.d(TAG, "SetAll")
         // main time

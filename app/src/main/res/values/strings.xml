@@ -84,8 +84,10 @@ Angriffe</string>
     <string name="deviceNotFound">Kein Gerät gefunden</string>
     <string name="notFound"> - </string>
     <string name="connect">Verbinden</string>
+    <string name="disconnect">Trennen</string>
     <string name="connected">Verbunden</string>
     <string name="connected_all">Alle verbinden</string>
+    <string name="disconnect_all">Alle trennen</string>
     <string name="wait_for_connection">Warten auf Verbindung</string>
     <string name="search">paired Geräte anzeigen</string>
     <string name="mainBoard">Haupt Anzeige</string>
@@ -93,6 +95,17 @@ Angriffe</string>
     <string name="shotclock2">Shotclock 2</string>
     <string name="shotclock3">Shotclock 3</string>
     <string name="shotclock4">Shotclock 4</string>
+    <string name="speaker">Lautsprecher</string>
+    <string name="speaker_volume">Lautstaerke</string>
+    <string name="speaker_connect_known_device">Verbinden zu bekanntem Mediengeraet</string>
+    <string name="speaker_no_known_device">Kein bekanntes Mediengeraet gefunden</string>
+    <string name="speaker_connect_with">Verbinden mit %1$s</string>
+    <string name="speaker_connected_with">Verbunden mit %1$s</string>
+    <string name="speaker_disconnect_from">Trennen von %1$s</string>
+    <string name="speaker_choose_device">Mediengeraet waehlen</string>
+    <string name="speaker_open_bt_settings">Bluetooth-Einstellungen geoeffnet</string>
+    <string name="speaker_not_connected">Kein Mediengeraet verbunden</string>
+    <string name="speaker_unknown_device">Unbekanntes Geraet</string>
 
     <string name="noPairedDeviceFound">kein gepaartes Gerät gefunden</string>
     <string name="new_game">Neues Spiel</string>

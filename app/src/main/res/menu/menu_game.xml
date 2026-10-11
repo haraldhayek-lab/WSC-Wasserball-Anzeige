@@ -37,6 +37,13 @@
                 app:showAsAction="ifRoom"/>
 
             <item
+                android:id="@+id/disconnect_all_item"
+                android:icon="@drawable/ic_bluetooth"
+                android:title="@string/disconnect_all"
+                app:showAsAction="ifRoom"
+                android:enabled="false"/>
+
+            <item
                 android:id="@+id/mainBoard_item"
                 android:icon="@drawable/ic_mainboard_disconnected"
                 android:title="@string/mainBoard"
@@ -54,6 +61,13 @@
                         android:id="@+id/mainboard_connect_item"
                         android:icon="@drawable/ic_bluetooth"
                         android:title="@string/connect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
+
+                    <item
+                        android:id="@+id/mainboard_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
                         app:showAsAction="ifRoom"
                         android:enabled="false" />
                 </menu>
@@ -80,6 +94,13 @@
                         android:title="@string/connect"
                         app:showAsAction="ifRoom"
                         android:enabled="false" />
+
+                    <item
+                        android:id="@+id/shotclock1_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
                 </menu>
 
             </item>
@@ -102,6 +123,13 @@
                         android:id="@+id/shotclock2_connect_item"
                         android:icon="@drawable/ic_bluetooth"
                         android:title="@string/connect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
+
+                    <item
+                        android:id="@+id/shotclock2_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
                         app:showAsAction="ifRoom"
                         android:enabled="false" />
                 </menu>
@@ -128,6 +156,13 @@
                         android:title="@string/connect"
                         app:showAsAction="ifRoom"
                         android:enabled="false" />
+
+                    <item
+                        android:id="@+id/shotclock3_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
                 </menu>
 
             </item>
@@ -152,8 +187,43 @@
                         android:title="@string/connect"
                         app:showAsAction="ifRoom"
                         android:enabled="false" />
+
+                    <item
+                        android:id="@+id/shotclock4_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
                 </menu>
 
+            </item>
+
+            <item
+                android:id="@+id/speaker_item"
+                android:icon="@android:drawable/ic_lock_silent_mode_off"
+                android:title="@string/speaker"
+                app:showAsAction="ifRoom">
+
+                <menu>
+                    <item
+                        android:id="@+id/speaker_volume_item"
+                        android:icon="@android:drawable/ic_lock_silent_mode_off"
+                        android:title="@string/speaker_volume"
+                        app:showAsAction="ifRoom" />
+
+                    <item
+                        android:id="@+id/speaker_connect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/connect"
+                        app:showAsAction="ifRoom" />
+
+                    <item
+                        android:id="@+id/speaker_disconnect_item"
+                        android:icon="@drawable/ic_bluetooth"
+                        android:title="@string/disconnect"
+                        app:showAsAction="ifRoom"
+                        android:enabled="false" />
+                </menu>
             </item>
         </menu>
     </item>
@@ -180,6 +250,41 @@
                 app:showAsAction="always" />
 
             <item
+                android:id="@+id/item_game_settings"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/game_settings"
+                app:showAsAction="always" />
+
+            <item
+                android:id="@+id/item_edit_teams"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/teams"
+                app:showAsAction="always" />
+
+            <item
+                android:id="@+id/item_edit_main_time"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_clock"
+                android:title="@string/main_time"
+                app:showAsAction="always" />
+
+            <item
+                android:id="@+id/item_edit_shotclock"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_timer"
+                android:title="@string/shotclock"
+                app:showAsAction="always" />
+
+            <item
+                android:id="@+id/item_draw_mode"
+                android:orderInCategory="100"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/draw_mode"
+                app:showAsAction="always" />
+
+            <item
                 android:id="@+id/item_save_game"
                 android:orderInCategory="100"
                 android:icon="@android:drawable/ic_menu_save"
@@ -194,52 +299,10 @@
                 app:showAsAction="always" />
 
             <item
-                android:id="@+id/item_edit_main_time"
-                android:orderInCategory="100"
-                android:icon="@drawable/ic_clock"
-                android:title="@string/main_time"
-                app:showAsAction="always" />
-
-            <item
                 android:id="@+id/item_edit_pause_time"
                 android:orderInCategory="100"
                 android:icon="@drawable/ic_timer"
                 android:title="@string/pause_shorten"
-                app:showAsAction="always" />
-
-            <item
-                android:id="@+id/item_edit_shotclock"
-                android:orderInCategory="100"
-                android:icon="@drawable/ic_timer"
-                android:title="@string/shotclock"
-                app:showAsAction="always" />
-
-            <item
-                android:id="@+id/item_game_settings"
-                android:orderInCategory="100"
-                android:icon="@drawable/ic_settings"
-                android:title="@string/game_settings"
-                app:showAsAction="always" />
-
-            <item
-                android:id="@+id/item_draw_mode"
-                android:orderInCategory="100"
-                android:icon="@drawable/ic_settings"
-                android:title="@string/draw_mode"
-                app:showAsAction="always" />
-
-            <item
-                android:id="@+id/item_edit_teams"
-                android:orderInCategory="100"
-                android:icon="@drawable/ic_settings"
-                android:title="@string/teams"
-                app:showAsAction="always" />
-
-            <item
-                android:id="@+id/item_volume_settings"
-                android:orderInCategory="100"
-                android:icon="@android:drawable/ic_lock_silent_mode_off"
-                android:title="Lautstaerke"
                 app:showAsAction="always" />
 
         </menu>

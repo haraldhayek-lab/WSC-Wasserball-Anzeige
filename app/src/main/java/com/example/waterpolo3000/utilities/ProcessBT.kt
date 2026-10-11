@@ -111,6 +111,44 @@ class ProcessBT(private val appContext: Context? = null) {
             }
         }
 
+        fun disconnectMainBoard(): Boolean {
+            val socket = btSocketMainBoard ?: run {
+                mainBoardConnected = false
+                return false
+            }
+
+            return try {
+                socket.close()
+                mainBoardConnected = false
+                btSocketMainBoard = null
+                true
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close mainboard socket", e)
+                mainBoardConnected = false
+                btSocketMainBoard = null
+                false
+            }
+        }
+
+        fun disconnectShotClock(index: Int): Boolean {
+            val socket = btSocketsShotClocks[index] ?: run {
+                shotClocksConnected[index] = false
+                return false
+            }
+
+            return try {
+                socket.close()
+                shotClocksConnected[index] = false
+                btSocketsShotClocks[index] = null
+                true
+            } catch (e: IOException) {
+                Log.e(TAG, "Could not close shotclock socket index=$index", e)
+                shotClocksConnected[index] = false
+                btSocketsShotClocks[index] = null
+                false
+            }
+        }
+
         private fun sendMessage(text: String, socket: BluetoothSocket): Boolean {
             return try {
                 socket.outputStream?.write(text.toByteArray())

@@ -2,6 +2,9 @@ package com.example.waterpolo3000
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.bluetooth.BluetoothClass
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.res.ColorStateList
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -19,6 +22,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MotionEvent
 import android.view.*
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.NumberPicker
@@ -94,6 +99,12 @@ class GameFragment : Fragment() {
 
     var mainBoardMenuItem: MenuItem? = null
     var LedBoardMenuItem: MenuItem? = null
+    var connectAllItem: MenuItem? = null
+    var disconnectAllItem: MenuItem? = null
+    var speakerMenuItem: MenuItem? = null
+    var speakerConnectItem: MenuItem? = null
+    var speakerDisconnectItem: MenuItem? = null
+    var speakerVolumeItem: MenuItem? = null
     val shotclockMenuItems = mutableListOf<MenuItem?>(
         null,
         null,
@@ -101,8 +112,15 @@ class GameFragment : Fragment() {
         null
     )
     var mainBoardConnectItem: MenuItem? = null
+    var mainBoardDisconnectItem: MenuItem? = null
     var mainBoardBrightnessItem: MenuItem? = null
     val shotclockConnectItems = mutableListOf<MenuItem?>(
+        null,
+        null,
+        null,
+        null
+    )
+    val shotclockDisconnectItems = mutableListOf<MenuItem?>(
         null,
         null,
         null,
@@ -763,11 +781,22 @@ class GameFragment : Fragment() {
         shotclockMenuItems[1] = menu.findItem(R.id.shotclock_2_item)
         shotclockMenuItems[2] = menu.findItem(R.id.shotclock_3_item)
         shotclockMenuItems[3] = menu.findItem(R.id.shotclock_4_item)
+        connectAllItem = menu.findItem(R.id.connect_all_item)
+        disconnectAllItem = menu.findItem(R.id.disconnect_all_item)
+        speakerMenuItem = menu.findItem(R.id.speaker_item)
+        speakerConnectItem = menu.findItem(R.id.speaker_connect_item)
+        speakerDisconnectItem = menu.findItem(R.id.speaker_disconnect_item)
+        speakerVolumeItem = menu.findItem(R.id.speaker_volume_item)
         mainBoardConnectItem = menu.findItem(R.id.mainboard_connect_item)
         shotclockConnectItems[0] = menu.findItem(R.id.shotclock1_connect_item)
         shotclockConnectItems[1] = menu.findItem(R.id.shotclock2_connect_item)
         shotclockConnectItems[2] = menu.findItem(R.id.shotclock3_connect_item)
         shotclockConnectItems[3] = menu.findItem(R.id.shotclock4_connect_item)
+        mainBoardDisconnectItem = menu.findItem(R.id.mainboard_disconnect_item)
+        shotclockDisconnectItems[0] = menu.findItem(R.id.shotclock1_disconnect_item)
+        shotclockDisconnectItems[1] = menu.findItem(R.id.shotclock2_disconnect_item)
+        shotclockDisconnectItems[2] = menu.findItem(R.id.shotclock3_disconnect_item)
+        shotclockDisconnectItems[3] = menu.findItem(R.id.shotclock4_disconnect_item)
         mainBoardBrightnessItem = menu.findItem(R.id.mainboard_brigthness_item)
         brightnessAllItem = menu.findItem(R.id.brigthness_all_item)
         brightnessShotclocks[0] = menu.findItem(R.id.brigthness_shotclock_1_item)
@@ -908,17 +937,6 @@ class GameFragment : Fragment() {
                 showTeamSettingsDialog()
                 true
             }
-            R.id.item_volume_settings -> {
-                val opened = runCatching {
-                    startActivity(Intent(Settings.ACTION_SOUND_SETTINGS))
-                }.isSuccess
-                if (!opened) {
-                    runCatching {
-                        startActivity(Intent(Settings.ACTION_SETTINGS))
-                    }
-                }
-                true
-            }
             R.id.mainboard_brigthness_item -> {
                 val dialog = Dialog(requireContext())
                 dialog.setContentView(R.layout.dialog_brightness)
@@ -972,24 +990,66 @@ class GameFragment : Fragment() {
                 viewModel.bluetoothConnectAll()
                 true
             }
+            R.id.disconnect_all_item -> {
+                viewModel.disconnectAllBoards()
+                setOptionsMenu()
+                true
+            }
+            R.id.speaker_volume_item -> {
+                openSpeakerVolumeSettings()
+                true
+            }
+            R.id.speaker_connect_item -> {
+                connectSpeakerDevice()
+                true
+            }
+            R.id.speaker_disconnect_item -> {
+                disconnectSpeakerDevice()
+                true
+            }
             R.id.mainboard_connect_item -> {
                 viewModel.connectMainBoard(": Haupt Tafel")
+                true
+            }
+            R.id.mainboard_disconnect_item -> {
+                viewModel.disconnectMainBoard()
+                setOptionsMenu()
                 true
             }
             R.id.shotclock1_connect_item -> {
                 viewModel.connectShotclock(1, ": Shotclock 1")
                 true
             }
+            R.id.shotclock1_disconnect_item -> {
+                viewModel.disconnectShotclock(1)
+                setOptionsMenu()
+                true
+            }
             R.id.shotclock2_connect_item -> {
                 viewModel.connectShotclock(2, ": Shotclock 2")
+                true
+            }
+            R.id.shotclock2_disconnect_item -> {
+                viewModel.disconnectShotclock(2)
+                setOptionsMenu()
                 true
             }
             R.id.shotclock3_connect_item -> {
                 viewModel.connectShotclock(3, ": Shotclock 3")
                 true
             }
+            R.id.shotclock3_disconnect_item -> {
+                viewModel.disconnectShotclock(3)
+                setOptionsMenu()
+                true
+            }
             R.id.shotclock4_connect_item -> {
                 viewModel.connectShotclock(4, ": Shotclock 4")
+                true
+            }
+            R.id.shotclock4_disconnect_item -> {
+                viewModel.disconnectShotclock(4)
+                setOptionsMenu()
                 true
             }
             else -> false
@@ -1663,6 +1723,8 @@ class GameFragment : Fragment() {
             if (brightnessAllItem != null) {
                 brightnessAllItem!!.isEnabled = connectedDevicesCounter > 0
             }
+            connectAllItem?.isEnabled = connectedDevicesCounter < 5
+            disconnectAllItem?.isEnabled = connectedDevicesCounter > 0
         }
         if (mainBoardMenuItem != null) {
             mainBoardMenuItem!!.icon = activity?.let {
@@ -1672,6 +1734,7 @@ class GameFragment : Fragment() {
                 )
             }
             mainBoardConnectItem?.isEnabled = !ProcessBT.mainBoardConnected
+            mainBoardDisconnectItem?.isEnabled = ProcessBT.mainBoardConnected
             mainBoardBrightnessItem?.isEnabled = ProcessBT.mainBoardConnected
         }
         shotclockMenuItems.forEachIndexed { index, menuItem ->
@@ -1684,6 +1747,7 @@ class GameFragment : Fragment() {
                     )
                 }
                 shotclockConnectItems[index]?.isEnabled = !ProcessBT.shotClocksConnected[index]
+                shotclockDisconnectItems[index]?.isEnabled = ProcessBT.shotClocksConnected[index]
                 brightnessShotclocks[index]?.isEnabled = ProcessBT.shotClocksConnected[index]
             }
         }
@@ -1691,7 +1755,128 @@ class GameFragment : Fragment() {
         val pauseTimerRunning = GameControl.isPauseTimerRunning()
         pauseShortenMenuItem?.isEnabled = pauseTimerRunning
         pauseShortenMenuItem?.isVisible = pauseTimerRunning
+        updateSpeakerMenuState()
         updatePauseSectionEditState()
+    }
+
+    private fun updateSpeakerMenuState() {
+        val connectedSpeakerName = getConnectedSpeakerName()
+        val speakerTitle = if (connectedSpeakerName != null) {
+            getString(R.string.speaker_connected_with, connectedSpeakerName)
+        } else {
+            getString(R.string.speaker)
+        }
+        speakerMenuItem?.title = speakerTitle
+        speakerConnectItem?.isEnabled = connectedSpeakerName == null
+        speakerDisconnectItem?.isEnabled = connectedSpeakerName != null
+        speakerVolumeItem?.isEnabled = true
+    }
+
+    private fun openSpeakerVolumeSettings() {
+        val opened = runCatching {
+            startActivity(Intent(Settings.ACTION_SOUND_SETTINGS))
+        }.isSuccess
+        if (!opened) {
+            runCatching {
+                startActivity(Intent(Settings.ACTION_SETTINGS))
+            }
+        }
+    }
+
+    private fun connectSpeakerDevice() {
+        val bluetoothAdapter = requireContext().getSystemService(BluetoothManager::class.java)?.adapter
+        if (bluetoothAdapter == null) {
+            Toast.makeText(requireContext(), getString(R.string.speaker_no_known_device), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val knownMediaDevices = runCatching {
+            bluetoothAdapter.bondedDevices
+                .filter { isLikelyMediaDevice(it) }
+                .sortedBy { it.name ?: it.address }
+        }.getOrDefault(emptyList())
+
+        if (knownMediaDevices.isEmpty()) {
+            Toast.makeText(requireContext(), getString(R.string.speaker_no_known_device), Toast.LENGTH_SHORT).show()
+            openBluetoothSettings()
+            return
+        }
+
+        if (knownMediaDevices.size == 1) {
+            showSpeakerConnectSelectionAndOpenSettings(knownMediaDevices.first())
+            return
+        }
+
+        val entries = knownMediaDevices.map { device ->
+            device.name ?: getString(R.string.speaker_unknown_device)
+        }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.speaker_choose_device))
+            .setItems(entries) { _, which ->
+                showSpeakerConnectSelectionAndOpenSettings(knownMediaDevices[which])
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun disconnectSpeakerDevice() {
+        val connectedSpeakerName = getConnectedSpeakerName()
+        if (connectedSpeakerName == null) {
+            Toast.makeText(requireContext(), getString(R.string.speaker_not_connected), Toast.LENGTH_SHORT).show()
+            setOptionsMenu()
+            return
+        }
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.speaker_disconnect_from, connectedSpeakerName),
+            Toast.LENGTH_SHORT
+        ).show()
+        openBluetoothSettings()
+        setOptionsMenu()
+    }
+
+    private fun showSpeakerConnectSelectionAndOpenSettings(device: BluetoothDevice) {
+        val name = device.name ?: getString(R.string.speaker_unknown_device)
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.speaker_connect_with, name),
+            Toast.LENGTH_SHORT
+        ).show()
+        openBluetoothSettings()
+        setOptionsMenu()
+    }
+
+    private fun openBluetoothSettings() {
+        val opened = runCatching {
+            startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
+        }.isSuccess
+        if (!opened) {
+            runCatching {
+                startActivity(Intent(Settings.ACTION_SETTINGS))
+            }
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.speaker_open_bt_settings), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getConnectedSpeakerName(): String? {
+        val audioManager = requireContext().getSystemService(AudioManager::class.java) ?: return null
+        val connectedDevice = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+            .firstOrNull { device ->
+                device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+                    device.type == AudioDeviceInfo.TYPE_BLE_HEADSET ||
+                    device.type == AudioDeviceInfo.TYPE_BLE_SPEAKER
+            }
+        return connectedDevice?.productName?.toString()?.takeIf { it.isNotBlank() }
+    }
+
+    private fun isLikelyMediaDevice(device: BluetoothDevice): Boolean {
+        val deviceClass = device.bluetoothClass
+        val isAudioVideoClass = deviceClass?.majorDeviceClass == BluetoothClass.Device.Major.AUDIO_VIDEO
+        val hasAudioService = deviceClass?.hasService(BluetoothClass.Service.RENDER) == true
+        return isAudioVideoClass || hasAudioService
     }
 
     private fun initObservers() {

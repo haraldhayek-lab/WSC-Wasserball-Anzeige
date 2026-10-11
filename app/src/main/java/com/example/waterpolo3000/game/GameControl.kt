@@ -1,7 +1,6 @@
 package com.example.waterpolo3000.game
 
 import android.app.Application
-import android.content.Context
 import android.content.ContentValues.TAG
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -460,6 +459,10 @@ class GameControl() {
                     createTimerCountdown()
                     timerCountdown?.start()
                     if (currentCountdownShotclock > 0L) {
+                        clampShotclockToRemainingMainTimeForBrutto()
+                        setShotclockOnlyTime()
+                    }
+                    if (currentCountdownShotclock > 0L) {
                         shotclockIsRunning = true
                         timerShotclock?.cancel()
                         createShotclockTimer()
@@ -494,6 +497,12 @@ class GameControl() {
                 timerShotclock?.cancel()
                 timerShotclock = null
             } else {
+                clampShotclockToRemainingMainTimeForBrutto()
+                setShotclockOnlyTime()
+                if (currentCountdownShotclock <= 0L) {
+                    shotclockIsRunning = false
+                    return
+                }
                 shotclockIsRunning = true
                 createShotclockTimer()
                 timerShotclock?.start()
@@ -689,44 +698,39 @@ class GameControl() {
         }
 
         fun newShotclockBig() {
-            if ((currentCountdownShotclock == currentCountdown) || (currentCountdownShotclock == (DEFAULT_SHOTCLOCK_BIG_LENGTH * 1000).toLong())) return
-
-            if (currentCountdown <= (DEFAULT_SHOTCLOCK_BIG_LENGTH * 1000)) {
-                currentCountdownShotclock = currentCountdown
-                myViewModel.setNewShotclock(null, null)
-                val shotclockSeconds = MyTimeConverter.getSecondsFromLong(currentCountdownShotclock)
-                val shotclockSecondsSmall = MyTimeConverter.getSecondsSmallFromLong(currentCountdownShotclock)
-                val shotclockSecondsString = if (shotclockSeconds < 10) "0$shotclockSeconds" else "$shotclockSeconds"
-                val color = if (shotclockSeconds < 6) "red" else "default"
-                ProcessBT.sendMessageToAllShotClock("shotclock%$shotclockSecondsString%$color%$shotclockSecondsSmall")
+            val targetMillis = shotclockLongLength.toLong() * 1000L
+            val boundedMillis = if (DEFAULT_TIME_IS_BRUTTO) {
+                minOf(targetMillis, currentCountdown.coerceAtLeast(0L))
             } else {
-                currentCountdownShotclock = shotclockLongLength.toLong() * 1000
-                setShotclockDefaults(shotclockLongLength)
-                val shotclockSeconds = MyTimeConverter.getSecondsFromLong(currentCountdownShotclock)
-                ProcessBT.sendMessageToAllShotClock("shotclock%$shotclockSeconds%default%0")
+                targetMillis
             }
+            if (currentCountdownShotclock == boundedMillis) return
+            currentCountdownShotclock = boundedMillis
+            setShotclockOnlyTime()
             restartShotclockTimerIfNeeded()
 //            myViewModel.storeGameEvent(NEW_SHOTCLOCK_BIG, currentCountdown, currentGameSection, "-")
         }
 
         fun newShotclockSmall() {
-            if ((currentCountdownShotclock == currentCountdown) || (currentCountdownShotclock == (DEFAULT_SHOTCLOCK_SMALL_LENGTH * 1000).toLong())) return
-
-            if (currentCountdown <= (DEFAULT_SHOTCLOCK_SMALL_LENGTH * 1000)) {
-                currentCountdownShotclock = currentCountdown
-                myViewModel.setNewShotclock(null, null)
-                val shotclockSeconds = MyTimeConverter.getSecondsFromLong(currentCountdownShotclock)
-                val shotclockSecondsSmall = MyTimeConverter.getSecondsSmallFromLong(currentCountdownShotclock)
-                val shotclockSecondsString = if (shotclockSeconds < 10) "0$shotclockSeconds" else "$shotclockSeconds"
-                val color = if (shotclockSeconds < 6) "red" else "default"
-                ProcessBT.sendMessageToAllShotClock("shotclock%$shotclockSecondsString%$color%$shotclockSecondsSmall")
+            val targetMillis = shotclockShortLength.toLong() * 1000L
+            val boundedMillis = if (DEFAULT_TIME_IS_BRUTTO) {
+                minOf(targetMillis, currentCountdown.coerceAtLeast(0L))
             } else {
-                currentCountdownShotclock = shotclockShortLength.toLong() * 1000
-                setShotclockDefaults(shotclockShortLength)
-                val shotclockSeconds = MyTimeConverter.getSecondsFromLong(currentCountdownShotclock)
-                ProcessBT.sendMessageToAllShotClock("shotclock%$shotclockSeconds%default%0")
+                targetMillis
             }
+            if (currentCountdownShotclock == boundedMillis) return
+            currentCountdownShotclock = boundedMillis
+            setShotclockOnlyTime()
             restartShotclockTimerIfNeeded()
+        }
+
+        private fun clampShotclockToRemainingMainTimeForBrutto() {
+            if (!DEFAULT_TIME_IS_BRUTTO) {
+                return
+            }
+            currentCountdownShotclock = currentCountdownShotclock
+                .coerceAtLeast(0L)
+                .coerceAtMost(currentCountdown.coerceAtLeast(0L))
         }
 
         private fun restartShotclockTimerIfNeeded() {
@@ -1089,7 +1093,6 @@ class GameControl() {
         }
 
         private fun playSound(version: Int) {
-            ensureMaximumSoundVolume()
             val soundGenerator = toneGenerator ?: ToneGenerator(AudioManager.STREAM_MUSIC, 100).also {
                 toneGenerator = it
             }
@@ -1100,7 +1103,6 @@ class GameControl() {
         }
 
         fun startManualHorn() {
-            ensureMaximumSoundVolume()
             val soundGenerator = toneGenerator ?: ToneGenerator(AudioManager.STREAM_MUSIC, 100).also {
                 toneGenerator = it
             }
@@ -1109,21 +1111,6 @@ class GameControl() {
 
         fun stopManualHorn() {
             toneGenerator?.stopTone()
-        }
-
-        private fun ensureMaximumSoundVolume() {
-            val audioManager = myViewModel.getApplication<Application>()
-                .getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
-            val streamsToBoost = listOf(
-                AudioManager.STREAM_MUSIC,
-                AudioManager.STREAM_RING,
-                AudioManager.STREAM_NOTIFICATION,
-                AudioManager.STREAM_ALARM
-            )
-            streamsToBoost.forEach { streamType ->
-                val maxVolume = audioManager.getStreamMaxVolume(streamType)
-                audioManager.setStreamVolume(streamType, maxVolume, 0)
-            }
         }
 
         fun getcountdownShotclock(): Long {
